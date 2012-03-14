@@ -13,7 +13,7 @@ EXTRA_DIST = \
 dist-zip: all
 	cp -r addons/pvr.vuplus .
 	$(STRIP) -s -x pvr.vuplus/XBMC_vuplus.pvr
-	zip -9 -r ./pvr.vuplus-$(VERSION).zip pvr.vuplus --exclude \*.am \*.in \*Makefile \*.gitignore
+	zip -9 -r ./pvr.vuplus-$(VERSION)-$(build_cpu).zip pvr.vuplus --exclude \*.am \*.in \*Makefile \*.gitignore
 	rm -Rf pvr.vuplus
 
 dist-zip-daily: all
@@ -21,7 +21,7 @@ dist-zip-daily: all
 	cat pvr.vuplus/addon.xml | sed "s/$(VERSION)/$(VERSION).$(DATE)/g" > pvr.vuplus/addon.xml.new
 	mv pvr.vuplus/addon.xml.new pvr.vuplus/addon.xml
 	$(STRIP) -s -x pvr.vuplus/XBMC_vuplus.pvr
-	zip -9 -r ./pvr.vuplus-$(VERSION).$(DATE).zip pvr.vuplus --exclude \*.am \*.in \*Makefile \*.gitignore
+	zip -9 -r ./pvr.vuplus-$(VERSION).$(DATE)-$(build_cpu).zip pvr.vuplus --exclude \*.am \*.in \*Makefile \*.gitignore
 	rm -Rf pvr.vuplus
 
 dist-git: all
