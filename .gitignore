@@ -1,0 +1,11 @@
+Makefile.in
+aclocal.m4
+configure
+autom4te.cache
+autotools
+config.*
+libtool
+Makefile
+xbmc-addon-vuplus-*.tar.gz
+pvr.vuplus-*.zip
+addons/pvr.vuplus/XBMC_vuplus.pvr
