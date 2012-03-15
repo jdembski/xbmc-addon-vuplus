@@ -5,7 +5,7 @@
 # how to reach the author.
 #
 
-LIBS   =-ldl -lcurl
+LIBS   =-ldl -lcurl -lpthread
 LIBDIR = ../../addons/pvr.vuplus
 LIB    = ../../addons/pvr.vuplus/XBMC_vuplus.pvr
 
