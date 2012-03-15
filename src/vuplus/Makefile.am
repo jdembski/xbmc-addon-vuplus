@@ -5,13 +5,14 @@
 # how to reach the author.
 #
 
-LIBS   =-ldl
+LIBS   =-ldl -lcurl
 LIBDIR = ../../addons/pvr.vuplus
 LIB    = ../../addons/pvr.vuplus/XBMC_vuplus.pvr
 
 lib_LTLIBRARIES = libvuplus.la
 
 libvuplus_la_SOURCES = \
+	client.cpp \
 	xmlParser.cpp \
 	VuData.cpp
 
