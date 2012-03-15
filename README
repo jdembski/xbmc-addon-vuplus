@@ -30,7 +30,7 @@ IMPORTANT:
 Please disable *all* PVR addons *before* installing the VU+ addon!
 
 - Clone the GIT repository
-- cd xbmc-addon-xvdr
+- cd xbmc-addon-vuplus
 - sh autogen.sh
 - ./configure --prefix=/usr/lib/xbmc (or $HOME/.xbmc)
 - make
