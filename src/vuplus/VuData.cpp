@@ -561,6 +561,7 @@ PVR_ERROR Vu::GetTimers(PVR_HANDLE handle)
     if (timer.state == PVR_TIMER_STATE_INVALID)
       XBMC->Log(LOG_DEBUG, "%s Timer state is: INVALID", __FUNCTION__);
 
+XBMC->Log(LOG_INFO, "SIZEOF '%i'", sizeof(PVR_TIMER));
     PVR_TIMER tag;
     memset(&tag, 0, sizeof(PVR_TIMER));
     tag.iClientChannelUid = timer.iChannelId;
