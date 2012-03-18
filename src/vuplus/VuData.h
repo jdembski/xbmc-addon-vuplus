@@ -81,6 +81,7 @@ private:
   std::vector<VuTimer> m_timers;
   std::vector<VuRecording> m_recordings;
   std::vector<VuChannelGroup> m_groups;
+  bool m_bInitial;
 
   PLATFORM::CMutex m_mutex;
   PLATFORM::CCondition<bool> m_started;
@@ -88,6 +89,8 @@ private:
 
   // functions
 
+  void StoreChannelData();
+  void LoadChannelData();
   CStdString GetHttpXML(CStdString& url);
   int GetChannelNumber(CStdString strServiceReference);
   CStdString URLEncodeInline(const CStdString& strData);

@@ -43,12 +43,13 @@ int         g_iPortWeb                = DEFAULT_WEB_PORT;
 int         g_iUpdateInterval         = DEFAULT_UPDATE_INTERVAL;
 std::string g_strUsername             = "";
 std::string g_strPassword             = "";
-std::string g_strUserPath             = "";
-std::string g_strClientPath           = "";
+std::string g_szUserPath             = "";
 std::string g_strIconPath             = "";
 bool        g_bShowTimersCompleted    = false;
 bool        g_bAutomaticTimerlistCleanup = false;
 bool        g_bZap                    = false;
+std::string g_szClientPath            = "";
+std::string g_strChannelDataPath      = "/tmp/";
 
 CHelper_libXBMC_addon *XBMC           = NULL;
 CHelper_libXBMC_pvr   *PVR            = NULL;
@@ -116,6 +117,12 @@ void ADDON_ReadSettings(void)
   else
     g_strIconPath = "";
   
+  /* read setting "channeldatapath" from settings.xml */
+  if (XBMC->GetSetting("channeldatapath", buffer))
+    g_strChannelDataPath = buffer;
+  else
+    g_strChannelDataPath = "/tmp/";
+  
   free (buffer);
 }
 
@@ -148,8 +155,8 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
 
   m_CurStatus     = ADDON_STATUS_UNKNOWN;
   g_iClientId     = pvrprops->iClientId;
-  g_strUserPath   = pvrprops->strUserPath;
-  g_strClientPath = pvrprops->strClientPath;
+  g_szUserPath   = pvrprops->strUserPath;
+  g_szClientPath  = pvrprops->strClientPath;
 
   ADDON_ReadSettings();
 

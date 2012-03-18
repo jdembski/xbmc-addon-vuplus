@@ -2,9 +2,175 @@
 
 #include <curl/curl.h>
 #include "client.h" 
+#include <iostream> 
+#include <fstream> 
 
 using namespace ADDON;
 using namespace PLATFORM;
+
+void Vu::LoadChannelData()
+{
+  XBMC->Log(LOG_DEBUG, "%s Load channel data from file: '%schanneldata.xml'", __FUNCTION__, g_strChannelDataPath.c_str());
+
+  XMLResults pResults;
+
+  CStdString strFileName;
+  strFileName.Format("%schanneldata.xml", g_strChannelDataPath.c_str());
+  XMLNode xMainNode = XMLNode::parseFile(strFileName.c_str(), "channeldata", &pResults);
+
+  if (pResults.error != 0) {
+    XBMC->Log(LOG_ERROR, "%s error parsing channeldata!", __FUNCTION__);
+    return;
+  }
+  
+  XMLNode xNode = xMainNode.getChildNode("grouplist");
+  int n = xNode.nChildNode("group");
+
+  XBMC->Log(LOG_INFO, "%s Number of elements: '%d'", __FUNCTION__, n);
+
+  for (int i = 0; i<n; i++)
+  {
+    XMLNode xTmp = xNode.getChildNode("group", i);
+
+    CStdString strTmp;
+
+    VuChannelGroup group; 
+    
+    if (!GetString(xTmp, "servicereference", strTmp))
+      continue;
+
+    group.strServiceReference = strTmp.c_str();
+    
+    if (!GetString(xTmp, "groupname", strTmp))
+      continue;
+
+    group.strGroupName = strTmp.c_str();
+
+
+    m_groups.push_back(group);
+
+    XBMC->Log(LOG_DEBUG, "%s Loaded group '%s' from HDD", __FUNCTION__, group.strGroupName.c_str());
+  }
+
+  xNode = xMainNode.getChildNode("channellist");
+  n = xNode.nChildNode("channel");
+
+  XBMC->Log(LOG_INFO, "%s Number of elements: '%d'", __FUNCTION__, n);
+
+  for (int i = 0; i<n; i++)
+  {
+    XMLNode xTmp = xNode.getChildNode("channel", i);
+
+    CStdString strTmp;
+    bool bTmp;
+    int iTmp;
+
+    VuChannel channel; 
+    
+    if (GetBoolean(xTmp, "radio", bTmp)) {
+      channel.bRadio = bTmp;
+    }
+
+    if (!GetInt(xTmp, "id", iTmp))
+      continue;
+    channel.iUniqueId = iTmp;
+
+    if (!GetInt(xTmp, "channelnumber", iTmp))
+      continue;
+    channel.iChannelNumber = iTmp;
+
+    if (!GetString(xTmp, "groupname", strTmp))
+      continue;
+    channel.strGroupName = strTmp.c_str();
+
+    if (!GetString(xTmp, "channelname", strTmp))
+      continue;
+    channel.strChannelName = strTmp.c_str();
+
+    if (!GetString(xTmp, "servicereference", strTmp))
+      continue;
+    channel.strServiceReference = strTmp.c_str();
+     
+    if (!GetString(xTmp, "streamurl", strTmp))
+      continue;
+    channel.strStreamURL = strTmp.c_str();
+
+    if (!GetString(xTmp, "iconpath", strTmp))
+      continue;
+    channel.strIconPath = strTmp.c_str();
+
+    m_channels.push_back(channel);
+
+    XBMC->Log(LOG_DEBUG, "%s Loaded channel '%s' from HDD", __FUNCTION__, channel.strChannelName.c_str());
+  }
+
+}
+
+void Vu::StoreChannelData()
+{
+  XBMC->Log(LOG_DEBUG, "%s Store channel data into file: '%schanneldata.xml'", __FUNCTION__, g_strChannelDataPath.c_str());
+
+  std::ofstream stream;
+  
+  CStdString strFileName;
+  strFileName.Format("%schanneldata.xml", g_strChannelDataPath.c_str());
+  stream.open(strFileName.c_str());
+
+  if(stream.fail())
+    XBMC->Log(LOG_ERROR, "%s Could not open channeldata file for writing!", __FUNCTION__);
+
+
+  stream << "<channeldata>\n";
+  stream << "\t<grouplist>\n";
+  for (unsigned int iGroupPtr = 0; iGroupPtr < m_groups.size(); iGroupPtr++)
+  {
+    VuChannelGroup &group = m_groups.at(iGroupPtr);
+    stream << "\t\t<group>\n";
+    stream << "\t\t\t<servicereference>" << group.strServiceReference;
+    stream << "</servicereference>\n";
+    stream << "\t\t\t<groupname>" << group.strGroupName;
+    stream << "</groupname>\n";
+    stream << "\t\t</group>\n";
+  }
+
+  stream << "\t</grouplist>\n";
+    
+  stream << "\t<channellist>\n";
+  for (unsigned int iChannelPtr = 0; iChannelPtr < m_channels.size(); iChannelPtr++)
+  {
+    stream << "\t\t<channel>\n";
+    VuChannel &channel = m_channels.at(iChannelPtr);
+
+    // store channel properties
+    stream << "\t\t\t<radio>";
+    if (channel.bRadio)
+      stream << "true";
+    else
+      stream << "false";
+    stream << "</radio>\n";
+
+    stream << "\t\t\t<id>" << channel.iUniqueId;
+    stream << "</id>\n";
+    stream << "\t\t\t<channelnumber>" << channel.iChannelNumber;
+    stream << "</channelnumber>\n";
+    stream << "\t\t\t<groupname>" << channel.strGroupName;
+    stream << "</groupname>\n";
+    stream << "\t\t\t<channelname>" << channel.strChannelName;
+    stream << "</channelname>\n";
+    stream << "\t\t\t<servicereference>" << channel.strServiceReference;
+    stream << "</servicereference>\n";
+    stream << "\t\t\t<streamurl>" << channel.strStreamURL;
+    stream << "</streamurl>\n";
+    stream << "\t\t\t<iconpath>" << channel.strIconPath;
+    stream << "</iconpath>\n";
+ 
+    stream << "\t\t</channel>\n";
+
+  }
+  stream << "\t</channellist>\n";
+  stream << "</channeldata>\n";
+  stream.close();
+}
 
 Vu::Vu() 
 {
@@ -22,6 +188,7 @@ Vu::Vu()
   m_iNumRecordings = 0;
   m_iNumChannelGroups = 0;
   m_iCurrentChannel = -1;
+  m_bInitial = false;
 }
 
 // Curl callback
@@ -50,21 +217,27 @@ bool Vu::Open()
   CLockObject lock(m_mutex);
   m_bIsConnected = false;
 
-  // Load the TV channels - close connection if no channels are found
-  if (!LoadChannelGroups())
-    return false;
+  LoadChannelData();
+  if (m_channels.size() == 0) {
+    XBMC->Log(LOG_DEBUG, "%s No stored channels found, fetch from webapi");
+    // Load the TV channels - close connection if no channels are found
+    if (!LoadChannelGroups())
+      return false;
 
-  // Load Channels
-  for (int i = 0;i<m_iNumChannelGroups;  i++) 
-  {
-    VuChannelGroup &myGroup = m_groups.at(i);
-    LoadChannels(myGroup.strServiceReference, myGroup.strGroupName);
+    // Load Channels
+    for (int i = 0;i<m_iNumChannelGroups;  i++) 
+    {
+      VuChannelGroup &myGroup = m_groups.at(i);
+      LoadChannels(myGroup.strServiceReference, myGroup.strGroupName);
+    }
+
+    // Load the radio channels - continue if no channels are found 
+    CStdString strTmp;
+    strTmp.Format("1:7:1:0:0:0:0:0:0:0:FROM BOUQUET \"userbouquet.favourites.radio\" ORDER BY bouquet");
+    LoadChannels(strTmp, "radio");
+    m_bInitial = true;
   }
 
-  // Load the radio channels - continue if no channels are found 
-  CStdString strTmp;
-  strTmp.Format("1:7:1:0:0:0:0:0:0:0:FROM BOUQUET \"userbouquet.favourites.radio\" ORDER BY bouquet");
-  LoadChannels(strTmp, "radio");
 
   XBMC->Log(LOG_INFO, "%s Starting separate client update thread...", __FUNCTION__);
 
@@ -80,12 +253,42 @@ void  *Vu::Process()
 
   while(IsRunning())
   {
+    if (m_bInitial == false) 
+    {
+      CLockObject lock(m_mutex);
+      m_groups.clear();
+      m_channels.clear();
+
+      // Load the TV channels - close connection if no channels are found
+      LoadChannelGroups();
+
+      // Load Channels
+      for (int i = 0;i<m_iNumChannelGroups;  i++) 
+      {
+        VuChannelGroup &myGroup = m_groups.at(i);
+        LoadChannels(myGroup.strServiceReference, myGroup.strGroupName);
+      }
+
+      // Load the radio channels - continue if no channels are found 
+      CStdString strTmp;
+      strTmp.Format("1:7:1:0:0:0:0:0:0:0:FROM BOUQUET \"userbouquet.favourites.radio\" ORDER BY bouquet");
+      LoadChannels(strTmp, "radio");
+      m_bInitial = true;
+  
+      PVR->TriggerChannelGroupsUpdate();
+      PVR->TriggerChannelUpdate();
+    }
+    
+    // Store the channel data on HDD
+    StoreChannelData();
+
     // Trigger Timer and Recording updates acording to the addon settings
     Sleep(g_iUpdateInterval * 60 * 1000);
     CLockObject lock(m_mutex);
     XBMC->Log(LOG_INFO, "%s Perform Updates!", __FUNCTION__);
     PVR->TriggerTimerUpdate();
     PVR->TriggerRecordingUpdate();
+
     if (g_bAutomaticTimerlistCleanup) 
     {
       CStdString strTmp;
@@ -393,7 +596,6 @@ PVR_ERROR Vu::GetEPGForChannel(PVR_HANDLE handle, const PVR_CHANNEL &channel, ti
 
     entry.strTitle = strTmp;
     
-    VuChannel &myChannel = m_channels.at(channel.iUniqueId-1);
     entry.strServiceReference = myChannel.strServiceReference;
 
     if (GetString(xTmp, "e2eventdescriptionextended", strTmp))

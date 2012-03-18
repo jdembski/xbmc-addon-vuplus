@@ -47,5 +47,6 @@ extern bool			 g_bZap;
 extern bool                      g_bAutomaticTimerlistCleanup;
 extern std::string               g_szUserPath;
 extern std::string               g_szClientPath;
+extern std::string               g_strChannelDataPath;
 extern ADDON::CHelper_libXBMC_addon *   XBMC;
 extern CHelper_libXBMC_pvr *     PVR;

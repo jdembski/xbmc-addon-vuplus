@@ -426,7 +426,8 @@ XMLNode XMLNode::openFileHelper(XMLCSTR filename, XMLCSTR tag)
 #else
         printf("%s",message);
 #endif
-        exit(255);
+       // edit from jdembski: remove exit // exit(255);
+      return NULL;
     }
     return xnode;
 }
