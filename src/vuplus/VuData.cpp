@@ -341,7 +341,7 @@ PVR_ERROR Vu::GetEPGForChannel(PVR_HANDLE handle, const PVR_CHANNEL &channel, ti
   VuChannel &myChannel = m_channels.at(channel.iUniqueId-1);
 
   CStdString url;
-  url.Format("%s%s%s",  m_strURL.c_str(), "web/epgservice?sRef=",  myChannel.strServiceReference); 
+  url.Format("%s%s%s",  m_strURL.c_str(), "web/epgservice?sRef=",  URLEncodeInline(myChannel.strServiceReference)); 
  
   CStdString strXML;
   strXML = GetHttpXML(url);
