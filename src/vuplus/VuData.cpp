@@ -286,8 +286,6 @@ void  *Vu::Process()
     Sleep(g_iUpdateInterval * 60 * 1000);
     CLockObject lock(m_mutex);
     XBMC->Log(LOG_INFO, "%s Perform Updates!", __FUNCTION__);
-    PVR->TriggerTimerUpdate();
-    PVR->TriggerRecordingUpdate();
 
     if (g_bAutomaticTimerlistCleanup) 
     {
@@ -297,6 +295,10 @@ void  *Vu::Process()
       if(!SendSimpleCommand(strTmp, strResult))
         XBMC->Log(LOG_ERROR, "%s - AutomaticTimerlistCleanup failed!", __FUNCTION__);
     }
+
+    PVR->TriggerTimerUpdate();
+    PVR->TriggerRecordingUpdate();
+
   }
 
   CLockObject lock(m_mutex);
