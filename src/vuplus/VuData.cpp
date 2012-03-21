@@ -405,7 +405,7 @@ bool Vu::Open()
 
   LoadChannelData();
   if (m_channels.size() == 0) {
-    XBMC->Log(LOG_DEBUG, "%s No stored channels found, fetch from webapi");
+    XBMC->Log(LOG_DEBUG, "%s No stored channels found, fetch from webapi", __FUNCTION__);
     // Load the TV channels - close connection if no channels are found
     if (!LoadChannelGroups())
       return false;
@@ -488,6 +488,7 @@ void Vu::Close()
 bool Vu::LoadChannels() 
 {
     m_channels.clear();
+    m_iNumChannels = 0;
     // Load Channels
     for (int i = 0;i<m_iNumChannelGroups;  i++) 
     {
@@ -613,11 +614,9 @@ bool Vu::LoadChannels(CStdString strServiceReference, CStdString strGroupName)
  
     CStdString strIcon;
     strTmp.Format("%s", newChannel.strServiceReference);
-    strIcon = strTmp.substr (0,30); 
 
-    std::replace(strIcon.begin(), strIcon.end(), ':','_');
-    if (strIcon.size()>2)
-      strIcon.erase(strIcon.size() - 1); 
+    std::replace(strTmp.begin(), strTmp.end(), ':','_');
+    strIcon = strTmp.substr (0,30); 
     strTmp.Format("%s%s.png", g_strIconPath, strIcon.c_str());
     newChannel.strIconPath = strTmp;
     
@@ -685,7 +684,7 @@ const char * Vu::GetServerName()
 
 int Vu::GetChannelsAmount()
 {
-  return m_iNumChannels;
+  return m_channels.size();
 }
 
 int Vu::GetTimersAmount()
@@ -837,10 +836,9 @@ PVR_ERROR Vu::GetEPGForChannel(PVR_HANDLE handle, const PVR_CHANNEL &channel, ti
 
 int Vu::GetChannelNumber(CStdString strServiceReference)  
 {
-  for (int i = 0;i<m_iNumChannels;  i++) 
+  for (int i = 0;i<m_channels.size();  i++) 
   {
-    VuChannel &myChannel = m_channels.at(i);
-    if (!strServiceReference.compare(myChannel.strServiceReference))
+    if (!strServiceReference.compare(m_channels[i].strServiceReference))
       return i+1;
   }
   return -1;
