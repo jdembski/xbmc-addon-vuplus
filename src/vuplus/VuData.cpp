@@ -8,6 +8,154 @@
 using namespace ADDON;
 using namespace PLATFORM;
 
+std::string& Vu::Escape(std::string &s, std::string from, std::string to)
+{ 
+  int pos = -1;
+  while ( (pos = s.find(from, pos+1) ) != std::string::npos)         
+    s.erase(pos, from.length()).insert(pos, to);        
+
+  return s;     
+} 
+
+bool Vu::CheckForChannelUpdate() {
+  if (!g_bCheckForChannelUpdates)
+    return false;
+
+  std::vector<VuChannel> oldchannels = m_channels;
+
+  LoadChannels();
+
+  for(int i=0; i< oldchannels.size(); i++)
+    oldchannels[i].iChannelState = VU_UPDATE_STATE_NONE;
+
+  for (int j=0; j<m_channels.size(); j++)
+  {
+    for (int i=0; i<oldchannels.size(); i++)
+    {
+      if (!oldchannels[i].strServiceReference.compare(m_channels[j].strServiceReference))
+      {
+        if(oldchannels[i] == m_channels[j])
+        {
+          m_channels[j].iChannelState = VU_UPDATE_STATE_FOUND;
+          oldchannels[i].iChannelState = VU_UPDATE_STATE_FOUND;
+        }
+        else
+        {
+          oldchannels[i].iChannelState = VU_UPDATE_STATE_UPDATED;
+          m_channels[j].iChannelState = VU_UPDATE_STATE_UPDATED;
+        }
+      }
+    }
+  }
+  
+  int iNewChannels = 0; 
+  for (int i=0; i<m_channels.size(); i++) 
+  {
+    if (m_channels[i].iChannelState == VU_UPDATE_STATE_NEW)
+      iNewChannels++;
+  }
+
+  int iRemovedChannels = 0;
+  int iNotUpdatedChannels = 0;
+  int iUpdatedChannels = 0;
+  for (int i=0; i<oldchannels.size(); i++) 
+  {
+    if(oldchannels[i].iChannelState == VU_UPDATE_STATE_NONE)
+      iRemovedChannels++;
+    
+    if(oldchannels[i].iChannelState == VU_UPDATE_STATE_FOUND)
+      iNotUpdatedChannels++;  
+
+    if(oldchannels[i].iChannelState == VU_UPDATE_STATE_UPDATED)
+      iUpdatedChannels++;
+  }
+
+  XBMC->Log(LOG_INFO, "%s No of channels: removed [%d], untouched [%d], updated '%d', new '%d'", __FUNCTION__, iRemovedChannels, iNotUpdatedChannels, iUpdatedChannels, iNewChannels); 
+
+  if ((iRemovedChannels > 0) || (iUpdatedChannels > 0) || (iNewChannels > 0))
+  {
+    //Channels have been changed, so return "true"
+    return true;
+  }
+  else 
+  {
+    m_channels = oldchannels;
+    return false;
+  }
+}
+
+bool Vu::CheckForGroupUpdate() {
+  if (!g_bCheckForGroupUpdates)
+    return false;
+
+  std::vector<VuChannelGroup> m_oldgroups = m_groups;
+
+  m_groups.clear();
+  LoadChannelGroups();
+
+  for (int i=0; i<m_oldgroups.size(); i++)
+    m_oldgroups[i].iGroupState = VU_UPDATE_STATE_NONE;
+
+  // Now compare the old group with the new one
+  for (int j=0; j<m_groups.size(); j++) 
+  {
+    for(int i=0;i<m_oldgroups.size(); i++) 
+    {
+      // we find the same service reference for the just fetched
+      // groups in the oldgroups, therefore this is either an name 
+      // update or just a persisting group
+      if (!m_oldgroups[i].strServiceReference.compare(m_groups[j].strServiceReference)) 
+      {
+        if (m_oldgroups[i] == m_groups[j]) 
+        {
+          m_groups[j].iGroupState = VU_UPDATE_STATE_FOUND;
+          m_oldgroups[i].iGroupState = VU_UPDATE_STATE_FOUND;
+        }
+        else 
+        {
+          m_oldgroups[i].iGroupState = VU_UPDATE_STATE_UPDATED;
+          m_groups[j].iGroupState = VU_UPDATE_STATE_UPDATED;
+        }
+      }
+    }
+  }
+
+  int iNewGroups = 0; 
+  for (int i=0; i<m_groups.size(); i++) 
+  {
+    if (m_groups[i].iGroupState == VU_UPDATE_STATE_NEW)
+      iNewGroups++;
+  }
+
+  int iRemovedGroups = 0;
+  int iNotUpdatedGroups = 0;
+  int iUpdatedGroups = 0;
+  for (int i=0; i<m_oldgroups.size(); i++) 
+  {
+    if(m_oldgroups[i].iGroupState == VU_UPDATE_STATE_NONE)
+      iRemovedGroups++;
+    
+    if(m_oldgroups[i].iGroupState == VU_UPDATE_STATE_FOUND)
+      iNotUpdatedGroups++;  
+
+    if(m_oldgroups[i].iGroupState == VU_UPDATE_STATE_UPDATED)
+      iUpdatedGroups++;
+  }
+
+  XBMC->Log(LOG_INFO, "%s No of groups: removed [%d], untouched [%d], updated '%d', new '%d'", __FUNCTION__, iRemovedGroups, iNotUpdatedGroups, iUpdatedGroups, iNewGroups); 
+
+  if ((iRemovedGroups > 0) || (iUpdatedGroups > 0) || (iNewGroups > 0))
+  {
+    // groups have been changed, so return "true"
+    return true;
+  }
+  else 
+  {
+    m_groups = m_oldgroups;
+    return false;
+  }
+}
+
 void Vu::LoadChannelData()
 {
   XBMC->Log(LOG_DEBUG, "%s Load channel data from file: '%schanneldata.xml'", __FUNCTION__, g_strChannelDataPath.c_str());
@@ -89,6 +237,7 @@ void Vu::LoadChannelData()
 
     if (!GetString(xTmp, "servicereference", strTmp))
       continue;
+
     channel.strServiceReference = strTmp.c_str();
      
     if (!GetString(xTmp, "streamurl", strTmp))
@@ -126,9 +275,21 @@ void Vu::StoreChannelData()
   {
     VuChannelGroup &group = m_groups.at(iGroupPtr);
     stream << "\t\t<group>\n";
-    stream << "\t\t\t<servicereference>" << group.strServiceReference;
+
+    CStdString strTmp = group.strServiceReference;
+    Escape(strTmp, "&", "&quot;");
+    Escape(strTmp, "<", "&lt;");
+    Escape(strTmp, ">", "&gt;");
+
+    stream << "\t\t\t<servicereference>" << strTmp;
     stream << "</servicereference>\n";
-    stream << "\t\t\t<groupname>" << group.strGroupName;
+    
+    strTmp = group.strGroupName;
+    Escape(strTmp, "&", "&quot;");
+    Escape(strTmp, "<", "&lt;");
+    Escape(strTmp, ">", "&gt;");
+
+    stream << "\t\t\t<groupname>" << strTmp;
     stream << "</groupname>\n";
     stream << "\t\t</group>\n";
   }
@@ -153,15 +314,40 @@ void Vu::StoreChannelData()
     stream << "</id>\n";
     stream << "\t\t\t<channelnumber>" << channel.iChannelNumber;
     stream << "</channelnumber>\n";
-    stream << "\t\t\t<groupname>" << channel.strGroupName;
+    
+    CStdString strTmp = channel.strGroupName;
+    Escape(strTmp, "&", "&quot;");
+    Escape(strTmp, "<", "&lt;");
+    Escape(strTmp, ">", "&gt;");
+
+    stream << "\t\t\t<groupname>" << strTmp;
     stream << "</groupname>\n";
-    stream << "\t\t\t<channelname>" << channel.strChannelName;
+    
+    strTmp = channel.strChannelName;
+    Escape(strTmp, "&", "&quot;");
+    Escape(strTmp, "<", "&lt;");
+    Escape(strTmp, ">", "&gt;");
+
+    stream << "\t\t\t<channelname>" << strTmp;
     stream << "</channelname>\n";
-    stream << "\t\t\t<servicereference>" << channel.strServiceReference;
+
+    strTmp = channel.strServiceReference;
+    Escape(strTmp, "&", "&quot;");
+    Escape(strTmp, "<", "&lt;");
+    Escape(strTmp, ">", "&gt;");
+
+    stream << "\t\t\t<servicereference>" << strTmp;
     stream << "</servicereference>\n";
     stream << "\t\t\t<streamurl>" << channel.strStreamURL;
     stream << "</streamurl>\n";
-    stream << "\t\t\t<iconpath>" << channel.strIconPath;
+
+    strTmp = channel.strIconPath;
+    Escape(strTmp, "&", "&quot;");
+    Escape(strTmp, "<", "&lt;");
+    Escape(strTmp, ">", "&gt;");
+
+
+    stream << "\t\t\t<iconpath>" << strTmp;
     stream << "</iconpath>\n";
  
     stream << "\t\t</channel>\n";
@@ -224,26 +410,17 @@ bool Vu::Open()
     if (!LoadChannelGroups())
       return false;
 
-    // Load Channels
-    for (int i = 0;i<m_iNumChannelGroups;  i++) 
-    {
-      VuChannelGroup &myGroup = m_groups.at(i);
-      LoadChannels(myGroup.strServiceReference, myGroup.strGroupName);
-    }
+    if (!LoadChannels())
+      return false;
 
-    // Load the radio channels - continue if no channels are found 
-    CStdString strTmp;
-    strTmp.Format("1:7:1:0:0:0:0:0:0:0:FROM BOUQUET \"userbouquet.favourites.radio\" ORDER BY bouquet");
-    LoadChannels(strTmp, "radio");
     m_bInitial = true;
+    StoreChannelData();
   }
 
-
   XBMC->Log(LOG_INFO, "%s Starting separate client update thread...", __FUNCTION__);
-
   CreateThread(); 
+  
   m_bIsConnected = true;
-
   return IsRunning(); 
 }
 
@@ -256,32 +433,27 @@ void  *Vu::Process()
     if (m_bInitial == false) 
     {
       CLockObject lock(m_mutex);
-      m_groups.clear();
-      m_channels.clear();
 
       // Load the TV channels - close connection if no channels are found
-      LoadChannelGroups();
+      bool bTriggerGroupsUpdate = CheckForGroupUpdate();
+      bool bTriggerChannelsUpdate = CheckForChannelUpdate();
 
-      // Load Channels
-      for (int i = 0;i<m_iNumChannelGroups;  i++) 
-      {
-        VuChannelGroup &myGroup = m_groups.at(i);
-        LoadChannels(myGroup.strServiceReference, myGroup.strGroupName);
-      }
-
-      // Load the radio channels - continue if no channels are found 
-      CStdString strTmp;
-      strTmp.Format("1:7:1:0:0:0:0:0:0:0:FROM BOUQUET \"userbouquet.favourites.radio\" ORDER BY bouquet");
-      LoadChannels(strTmp, "radio");
       m_bInitial = true;
   
-      PVR->TriggerChannelGroupsUpdate();
-      PVR->TriggerChannelUpdate();
+      if (bTriggerGroupsUpdate) 
+      {
+        PVR->TriggerChannelGroupsUpdate();
+        bTriggerChannelsUpdate = true;
+      }
+
+      if (bTriggerChannelsUpdate) 
+      {
+        PVR->TriggerChannelUpdate();
+        // Store the channel data on HDD
+        StoreChannelData();
+      }
     }
     
-    // Store the channel data on HDD
-    StoreChannelData();
-
     // Trigger Timer and Recording updates acording to the addon settings
     Sleep(g_iUpdateInterval * 60 * 1000);
     CLockObject lock(m_mutex);
@@ -311,6 +483,28 @@ void  *Vu::Process()
 void Vu::Close()
 {
   m_bIsConnected = false;
+}
+
+bool Vu::LoadChannels() 
+{
+    m_channels.clear();
+    // Load Channels
+    for (int i = 0;i<m_iNumChannelGroups;  i++) 
+    {
+      VuChannelGroup &myGroup = m_groups.at(i);
+      if (!LoadChannels(myGroup.strServiceReference, myGroup.strGroupName))
+      {
+        return false;
+      }
+    }
+
+    // Load the radio channels - continue if no channels are found 
+    CStdString strTmp;
+    strTmp.Format("1:7:1:0:0:0:0:0:0:0:FROM BOUQUET \"userbouquet.favourites.radio\" ORDER BY bouquet");
+    if (!LoadChannels(strTmp, "radio"))
+      return false;
+
+    return true;
 }
 
 bool Vu::LoadChannelGroups() 
@@ -418,7 +612,8 @@ bool Vu::LoadChannels(CStdString strServiceReference, CStdString strGroupName)
     newChannel.strChannelName = strTmp;
  
     CStdString strIcon;
-    strIcon.Format("%s", newChannel.strServiceReference);
+    strTmp.Format("%s", newChannel.strServiceReference);
+    strIcon = strTmp.substr (0,30); 
 
     std::replace(strIcon.begin(), strIcon.end(), ':','_');
     if (strIcon.size()>2)

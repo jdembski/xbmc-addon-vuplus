@@ -13,6 +13,8 @@
     <string id="30012">Webinterface Port</string>
     <string id="30013">Umschalten auf SatBox (z.B. bei SingleTuner Receivern)</string>
     <string id="30014">Ort fuer Kanaldaten</string>
+    <string id="30015">Ueberpruefe auf Bouquettaktualisierungen</string>
+    <string id="30016">Ueberpruefe auf Kanalaktualisierungen</string>
 
     <!-- notifications -->
     <string id="30500">Verbindung '%s' unterbrochen</string>

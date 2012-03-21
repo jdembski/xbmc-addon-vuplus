@@ -10,10 +10,66 @@ struct VuWebResponse {
   int iSize;
 };
 
+typedef enum VU_UPDATE_STATE
+{
+    VU_UPDATE_STATE_NONE,
+    VU_UPDATE_STATE_FOUND,
+    VU_UPDATE_STATE_UPDATED,
+    VU_UPDATE_STATE_NEW
+} VU_UPDATE_STATE;
+
 struct VuChannelGroup {
   std::string strServiceReference;
   std::string strGroupName;
+  int iGroupState;
+
+  VuChannelGroup() 
+  { 
+    iGroupState = VU_UPDATE_STATE_NEW;
+  }
+
+  bool operator==(const VuChannelGroup &right) const
+  {
+    return (! strServiceReference.compare(right.strServiceReference)) && (! strGroupName.compare(right.strGroupName));
+  }
+
 };
+
+struct VuChannel
+{
+  bool bRadio;
+  int iUniqueId;
+  int iChannelNumber;
+  std::string strGroupName;
+  std::string strChannelName;
+  std::string strServiceReference;
+  std::string strStreamURL;
+  std::string strIconPath;
+  int iChannelState;
+
+  VuChannel()
+  {
+    iChannelState = VU_UPDATE_STATE_NEW;
+  }
+  
+  bool operator==(const VuChannel &right) const
+  {
+    bool bChanged = true;
+    bChanged = bChanged && (bRadio == right.bRadio); 
+    bChanged = bChanged && (iUniqueId == right.iUniqueId); 
+    bChanged = bChanged && (iChannelNumber == right.iChannelNumber); 
+    bChanged = bChanged && (! strGroupName.compare(right.strGroupName));
+    bChanged = bChanged && (! strChannelName.compare(right.strChannelName));
+    bChanged = bChanged && (! strServiceReference.compare(right.strServiceReference));
+    bChanged = bChanged && (! strStreamURL.compare(right.strStreamURL));
+    bChanged = bChanged && (! strIconPath.compare(right.strIconPath));
+
+    return bChanged;
+  }
+
+};
+
+
 
 struct VuEPGEntry 
 {
@@ -52,18 +108,6 @@ struct VuRecording
   std::string strChannelName;
 };
  
-struct VuChannel
-{
-  bool bRadio;
-  int iUniqueId;
-  int iChannelNumber;
-  std::string strGroupName;
-  std::string strChannelName;
-  std::string strServiceReference;
-  std::string strStreamURL;
-  std::string strIconPath;
-};
-
 class Vu  : public PLATFORM::CThread
 {
 private:
@@ -98,6 +142,7 @@ private:
   static int VuWebResponseCallback(void *contents, int iLength, int iSize, void *memPtr); 
   CStdString GetGroupServiceReference(CStdString strGroupName);
   bool LoadChannels(CStdString strServerReference, CStdString strGroupName);
+  bool LoadChannels();
   bool LoadChannelGroups();
 
   // helper functions
@@ -106,6 +151,10 @@ private:
   static bool GetString(XMLNode xRootNode, const char* strTag, CStdString& strStringValue);
   static long TimeStringToSeconds(const CStdString &timeString);
   static int SplitString(const CStdString& input, const CStdString& delimiter, CStdStringArray &results, unsigned int iMaxStrings = 0);
+  bool CheckForGroupUpdate();
+  bool CheckForChannelUpdate();
+  std::string& Escape(std::string &s, std::string from, std::string to);
+
 
 protected:
   virtual void *Process(void);

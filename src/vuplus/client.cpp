@@ -48,6 +48,8 @@ std::string g_strIconPath             = "";
 bool        g_bShowTimersCompleted    = false;
 bool        g_bAutomaticTimerlistCleanup = false;
 bool        g_bZap                    = false;
+bool        g_bCheckForGroupUpdates   = true;
+bool        g_bCheckForChannelUpdates = true;
 std::string g_szClientPath            = "";
 std::string g_strChannelDataPath      = "/tmp/";
 
@@ -94,6 +96,14 @@ void ADDON_ReadSettings(void)
   /* read setting "showcompleted" from settings.xml */
   if (!XBMC->GetSetting("showcompleted", &g_bShowTimersCompleted))
     g_bShowTimersCompleted = false;
+  
+  /* read setting "checkgroups" from settings.xml */
+  if (!XBMC->GetSetting("checkgroups", &g_bCheckForGroupUpdates))
+    g_bCheckForGroupUpdates = true;
+  
+  /* read setting "showcompleted" from settings.xml */
+  if (!XBMC->GetSetting("checkchannels", &g_bCheckForChannelUpdates))
+    g_bCheckForChannelUpdates = true;
   
   /* read setting "zap" from settings.xml */
   if (!XBMC->GetSetting("zap", &g_bZap))

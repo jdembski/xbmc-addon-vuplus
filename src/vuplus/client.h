@@ -45,6 +45,8 @@ extern bool                      g_bShowTimerNotifications;
 extern bool 	                 g_bShowTimersCompleted;
 extern bool			 g_bZap;
 extern bool                      g_bAutomaticTimerlistCleanup;
+extern bool                      g_bCheckForGroupUpdates;
+extern bool                      g_bCheckForChannelUpdates;
 extern std::string               g_szUserPath;
 extern std::string               g_szClientPath;
 extern std::string               g_strChannelDataPath;

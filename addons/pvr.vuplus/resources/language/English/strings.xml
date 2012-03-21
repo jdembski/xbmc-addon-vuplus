@@ -13,6 +13,8 @@
     <string id="30012">Webinterface Port</string>
     <string id="30013">Zap before channelswitch (i.e. for Single Tuner boxes)</string>
     <string id="30014">Folder for channeldata</string>
+    <string id="30015">Check for bouquett updates</string>
+    <string id="30016">Check for channel updates</string>
 
     <!-- notifications -->
     <string id="30500">Disconnected from '%s'</string>
