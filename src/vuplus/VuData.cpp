@@ -616,7 +616,7 @@ bool Vu::LoadChannels(CStdString strServiceReference, CStdString strGroupName)
     strTmp.Format("%s", newChannel.strServiceReference);
 
     std::replace(strTmp.begin(), strTmp.end(), ':','_');
-    strIcon = strTmp.substr (0,30); 
+    strIcon = strTmp.substr (0,29); 
     strTmp.Format("%s%s.png", g_strIconPath, strIcon.c_str());
     newChannel.strIconPath = strTmp;
     
