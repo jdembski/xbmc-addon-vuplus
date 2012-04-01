@@ -25,12 +25,12 @@ bool Vu::CheckForChannelUpdate() {
 
   LoadChannels();
 
-  for(int i=0; i< oldchannels.size(); i++)
+  for(unsigned int i=0; i< oldchannels.size(); i++)
     oldchannels[i].iChannelState = VU_UPDATE_STATE_NONE;
 
-  for (int j=0; j<m_channels.size(); j++)
+  for (unsigned int j=0; j<m_channels.size(); j++)
   {
-    for (int i=0; i<oldchannels.size(); i++)
+    for (unsigned int i=0; i<oldchannels.size(); i++)
     {
       if (!oldchannels[i].strServiceReference.compare(m_channels[j].strServiceReference))
       {
@@ -49,7 +49,7 @@ bool Vu::CheckForChannelUpdate() {
   }
   
   int iNewChannels = 0; 
-  for (int i=0; i<m_channels.size(); i++) 
+  for (unsigned int i=0; i<m_channels.size(); i++) 
   {
     if (m_channels[i].iChannelState == VU_UPDATE_STATE_NEW)
       iNewChannels++;
@@ -58,7 +58,7 @@ bool Vu::CheckForChannelUpdate() {
   int iRemovedChannels = 0;
   int iNotUpdatedChannels = 0;
   int iUpdatedChannels = 0;
-  for (int i=0; i<oldchannels.size(); i++) 
+  for (unsigned int i=0; i<oldchannels.size(); i++) 
   {
     if(oldchannels[i].iChannelState == VU_UPDATE_STATE_NONE)
       iRemovedChannels++;
@@ -93,13 +93,13 @@ bool Vu::CheckForGroupUpdate() {
   m_groups.clear();
   LoadChannelGroups();
 
-  for (int i=0; i<m_oldgroups.size(); i++)
+  for (unsigned int i=0; i<m_oldgroups.size(); i++)
     m_oldgroups[i].iGroupState = VU_UPDATE_STATE_NONE;
 
   // Now compare the old group with the new one
-  for (int j=0; j<m_groups.size(); j++) 
+  for (unsigned int j=0; j<m_groups.size(); j++) 
   {
-    for(int i=0;i<m_oldgroups.size(); i++) 
+    for(unsigned int i=0;i<m_oldgroups.size(); i++) 
     {
       // we find the same service reference for the just fetched
       // groups in the oldgroups, therefore this is either an name 
@@ -121,7 +121,7 @@ bool Vu::CheckForGroupUpdate() {
   }
 
   int iNewGroups = 0; 
-  for (int i=0; i<m_groups.size(); i++) 
+  for (unsigned int i=0; i<m_groups.size(); i++) 
   {
     if (m_groups[i].iGroupState == VU_UPDATE_STATE_NEW)
       iNewGroups++;
@@ -130,7 +130,7 @@ bool Vu::CheckForGroupUpdate() {
   int iRemovedGroups = 0;
   int iNotUpdatedGroups = 0;
   int iUpdatedGroups = 0;
-  for (int i=0; i<m_oldgroups.size(); i++) 
+  for (unsigned int i=0; i<m_oldgroups.size(); i++) 
   {
     if(m_oldgroups[i].iGroupState == VU_UPDATE_STATE_NONE)
       iRemovedGroups++;
@@ -616,9 +616,15 @@ bool Vu::LoadChannels(CStdString strServiceReference, CStdString strGroupName)
     strTmp.Format("%s", newChannel.strServiceReference);
 
     std::replace(strTmp.begin(), strTmp.end(), ':','_');
-    strIcon = strTmp.substr (0,29); 
+    strIcon = strTmp.substr (0,30); 
     strTmp.Format("%s%s.png", g_strIconPath, strIcon.c_str());
     newChannel.strIconPath = strTmp;
+
+    std::string::iterator it = strIcon.end() - 1; 
+    if (*it == '_') 
+    { 
+         strIcon.erase(it); 
+    } 
     
     strTmp.Format("http://%s:%d/%s", g_strHostname, g_iPortStream, newChannel.strServiceReference);
     newChannel.strStreamURL = strTmp;
@@ -836,7 +842,7 @@ PVR_ERROR Vu::GetEPGForChannel(PVR_HANDLE handle, const PVR_CHANNEL &channel, ti
 
 int Vu::GetChannelNumber(CStdString strServiceReference)  
 {
-  for (int i = 0;i<m_channels.size();  i++) 
+  for (unsigned int i = 0;i<m_channels.size();  i++) 
   {
     if (!strServiceReference.compare(m_channels[i].strServiceReference))
       return i+1;
@@ -1388,12 +1394,9 @@ int Vu::GetCurrentClientChannel(void)
 
 const char* Vu::GetLiveStreamURL(const PVR_CHANNEL &channelinfo)
 {
-  CStdString strStreamURL =  m_channels.at(channelinfo.iUniqueId-1).strStreamURL.c_str();
-  XBMC->Log(LOG_INFO, "%s URL: '%s'", __FUNCTION__, strStreamURL.c_str());
-  
   SwitchChannel(channelinfo);
 
-  return strStreamURL;
+  return m_channels.at(channelinfo.iUniqueId-1).strStreamURL.c_str();
 }
 
 bool Vu::OpenLiveStream(const PVR_CHANNEL &channelinfo)

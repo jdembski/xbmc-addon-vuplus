@@ -1,3 +1,7 @@
+0.1.5 fix: Fix access violation errors on windows (thanks to 'trans' for finding the correct compiler / linker settings)
+      fix: do not return out of scope local variable for the streaming URL
+      fix: remove the last '_' character from the filename (if applicable). Should finally fix the picon path errors.
+
 0.1.4 fix: limit length of the service reference part of the Icon-Path to 30 characters. 
       fix: Escape "&", "<" and ">" characters in XML channeldata file.
       add: support to disable all bouquet or channel updates 

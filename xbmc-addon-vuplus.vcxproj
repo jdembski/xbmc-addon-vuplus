@@ -48,8 +48,8 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>_WINSOCKAPI_;WIN32;_DEBUG;_WINDOWS;_USRDLL;XBMCADDONVUPLUS_EXPORTS;WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PreprocessorDefinitions>_USE_32BIT_TIME_T;USE_DEMUX;__STDC_CONSTANT_MACROS;__WINDOWS__;_WINSOCKAPI_;WIN32;_DEBUG;_USRDLL;CURL_STATICLIB;XBMCADDONVUPLUS_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
