@@ -612,20 +612,35 @@ bool Vu::LoadChannels(CStdString strServiceReference, CStdString strGroupName)
 
     newChannel.strChannelName = strTmp;
  
-    CStdString strIcon;
-    strTmp.Format("%s", newChannel.strServiceReference);
+    std::string strIcon;
+    strIcon = newChannel.strServiceReference;
 
-    std::replace(strTmp.begin(), strTmp.end(), ':','_');
-    strIcon = strTmp.substr (0,30); 
-    strTmp.Format("%s%s.png", g_strIconPath, strIcon.c_str());
-    newChannel.strIconPath = strTmp;
+    int i = 0;
+    std::string::iterator it = strIcon.begin();
 
-    std::string::iterator it = strIcon.end() - 1; 
-    if (*it == '_') 
-    { 
-         strIcon.erase(it); 
-    } 
-    
+    while (i<10 || it == strIcon.end())
+    {
+      if (*it == ':')
+        i++;
+
+      it++;
+    }
+    std::string::size_type index = it-strIcon.begin();
+
+    std::replace(strIcon.begin(), strIcon.end(), ':','_');
+
+    strIcon = strIcon.substr(0,index);
+
+    it = strIcon.end() - 1;
+    if (*it == '_')
+    {
+      strIcon.erase(it);
+    }
+
+    strIcon = g_strIconPath.c_str() + strIcon + ".png";
+
+    newChannel.strIconPath = strIcon;
+
     strTmp.Format("http://%s:%d/%s", g_strHostname, g_iPortStream, newChannel.strServiceReference);
     newChannel.strStreamURL = strTmp;
 
