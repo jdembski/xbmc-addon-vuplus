@@ -1,3 +1,5 @@
+0.1.7 fix: Copy & Paste error                        
+
 0.1.6 fix: Change the logic to determine the picon file name from the service reference.
 
 0.1.5 fix: Fix access violation errors on windows (thanks to 'trans' for finding the correct compiler / linker settings)
