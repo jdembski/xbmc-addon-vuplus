@@ -613,12 +613,12 @@ bool Vu::LoadChannels(CStdString strServiceReference, CStdString strGroupName)
     newChannel.strChannelName = strTmp;
  
     std::string strIcon;
-    strIcon = newChannel.strServiceReference;
+    strIcon = newChannel.strServiceReference.c_str();
 
     int j = 0;
     std::string::iterator it = strIcon.begin();
 
-    while (j<10 || it == strIcon.end())
+    while (j<10 && it != strIcon.end())
     {
       if (*it == ':')
         j++;
