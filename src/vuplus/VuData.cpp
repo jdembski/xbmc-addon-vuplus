@@ -475,7 +475,7 @@ void  *Vu::Process()
 {
   XBMC->Log(LOG_DEBUG, "%s - starting", __FUNCTION__);
 
-  while(IsRunning())
+  while(!IsStopped())
   {
 
     Sleep(5 * 1000);
@@ -487,7 +487,6 @@ void  *Vu::Process()
  
       if (!m_bInitial)
       {
-        //CLockObject lock(m_mutex);
         // Load the TV channels - close connection if no channels are found
         bool bTriggerGroupsUpdate = CheckForGroupUpdate();
         bool bTriggerChannelsUpdate = CheckForChannelUpdate();
@@ -509,6 +508,7 @@ void  *Vu::Process()
       }
     
       // Trigger Timer and Recording updates acording to the addon settings
+      CLockObject lock(m_mutex);
       XBMC->Log(LOG_INFO, "%s Perform Updates!", __FUNCTION__);
 
       if (g_bAutomaticTimerlistCleanup) 
@@ -528,7 +528,7 @@ void  *Vu::Process()
 
   CLockObject lock(m_mutex);
   m_started.Broadcast();
-  XBMC->Log(LOG_DEBUG, "%s - exiting", __FUNCTION__);
+  //XBMC->Log(LOG_DEBUG, "%s - exiting", __FUNCTION__);
 
   return NULL;
 }
