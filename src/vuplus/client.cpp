@@ -84,7 +84,7 @@ void ADDON_ReadSettings(void)
     g_strPassword = buffer;
   else
     g_strPassword = "";
-
+  
   /* read setting "streamport" from settings.xml */
   if (!XBMC->GetSetting("streamport", &g_iPortStream))
     g_iPortStream = DEFAULT_STREAM_PORT;

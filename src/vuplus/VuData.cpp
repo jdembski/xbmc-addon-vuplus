@@ -17,7 +17,51 @@ std::string& Vu::Escape(std::string &s, std::string from, std::string to)
   return s;     
 } 
 
-bool Vu::CheckForChannelUpdate() {
+bool Vu::LoadLocations() 
+{
+  CStdString url;
+  url.Format("%s%s",  m_strURL.c_str(), "web/getlocations"); 
+ 
+  CStdString strXML;
+  strXML = GetHttpXML(url);
+
+  int iNumLocations = 0;
+
+  XMLResults xe;
+  XMLNode xMainNode = XMLNode::parseString(strXML.c_str(), NULL, &xe);
+
+  if(xe.error != 0)  {
+    XBMC->Log(LOG_ERROR, "%s Unable to parse XML. Error: '%s' ", __FUNCTION__, XMLNode::getError(xe.error));
+    return false;
+  }
+
+  XMLNode xNode = xMainNode.getChildNode("e2locations");
+  int n = xNode.nChildNode("e2location");
+
+  XBMC->Log(LOG_INFO, "%s Number of elements: '%d'", __FUNCTION__, n);
+
+  for (int i = 0; i<n; i++)
+  {
+    XMLNode xTmp = xNode.getChildNode("e2location", i);
+
+    CStdString strTmp;
+
+    strTmp = xTmp.getText();
+
+    m_locations.push_back(strTmp);
+    iNumLocations++;
+
+    XBMC->Log(LOG_DEBUG, "%s Added '%s' as a recording location", __FUNCTION__, strTmp.c_str());
+  }
+
+  XBMC->Log(LOG_INFO, "%s Loded '%d' recording locations", __FUNCTION__, iNumLocations);
+
+  return true;
+
+}
+
+bool Vu::CheckForChannelUpdate() 
+{
   if (!g_bCheckForChannelUpdates)
     return false;
 
@@ -375,6 +419,8 @@ Vu::Vu()
   m_iNumChannelGroups = 0;
   m_iCurrentChannel = -1;
   m_bInitial = false;
+
+  m_iUpdateTimer = 0;
 }
 
 // Curl callback
@@ -403,6 +449,7 @@ bool Vu::Open()
   CLockObject lock(m_mutex);
   m_bIsConnected = false;
 
+  LoadLocations();
   LoadChannelData();
   if (m_channels.size() == 0) {
     XBMC->Log(LOG_DEBUG, "%s No stored channels found, fetch from webapi", __FUNCTION__);
@@ -430,46 +477,52 @@ void  *Vu::Process()
 
   while(IsRunning())
   {
-    if (m_bInitial == false) 
+
+    Sleep(5 * 1000);
+    m_iUpdateTimer += 5;
+
+    if ((m_iUpdateTimer > (g_iUpdateInterval * 60)) || (m_bInitial == false))
     {
-      CLockObject lock(m_mutex);
-
-      // Load the TV channels - close connection if no channels are found
-      bool bTriggerGroupsUpdate = CheckForGroupUpdate();
-      bool bTriggerChannelsUpdate = CheckForChannelUpdate();
-
-      m_bInitial = true;
-  
-      if (bTriggerGroupsUpdate) 
+      m_iUpdateTimer = 0;
+ 
+      if (!m_bInitial)
       {
-        PVR->TriggerChannelGroupsUpdate();
-        bTriggerChannelsUpdate = true;
-      }
+        //CLockObject lock(m_mutex);
+        // Load the TV channels - close connection if no channels are found
+        bool bTriggerGroupsUpdate = CheckForGroupUpdate();
+        bool bTriggerChannelsUpdate = CheckForChannelUpdate();
 
-      if (bTriggerChannelsUpdate) 
-      {
-        PVR->TriggerChannelUpdate();
-        // Store the channel data on HDD
-        StoreChannelData();
+        m_bInitial = true;
+
+        if (bTriggerGroupsUpdate) 
+        {
+          PVR->TriggerChannelGroupsUpdate();
+          bTriggerChannelsUpdate = true;
+        }
+
+        if (bTriggerChannelsUpdate) 
+        {
+          PVR->TriggerChannelUpdate();
+          // Store the channel data on HDD
+          StoreChannelData();
+        }
       }
-    }
     
-    // Trigger Timer and Recording updates acording to the addon settings
-    Sleep(g_iUpdateInterval * 60 * 1000);
-    CLockObject lock(m_mutex);
-    XBMC->Log(LOG_INFO, "%s Perform Updates!", __FUNCTION__);
+      // Trigger Timer and Recording updates acording to the addon settings
+      XBMC->Log(LOG_INFO, "%s Perform Updates!", __FUNCTION__);
 
-    if (g_bAutomaticTimerlistCleanup) 
-    {
-      CStdString strTmp;
-      strTmp.Format("web/timercleanup?cleanup=true");
-      CStdString strResult;
-      if(!SendSimpleCommand(strTmp, strResult))
-        XBMC->Log(LOG_ERROR, "%s - AutomaticTimerlistCleanup failed!", __FUNCTION__);
+      if (g_bAutomaticTimerlistCleanup) 
+      {
+        CStdString strTmp;
+        strTmp.Format("web/timercleanup?cleanup=true");
+        CStdString strResult;
+        if(!SendSimpleCommand(strTmp, strResult))
+          XBMC->Log(LOG_ERROR, "%s - AutomaticTimerlistCleanup failed!", __FUNCTION__);
+      }
+
+      PVR->TriggerTimerUpdate();
+      PVR->TriggerRecordingUpdate();
     }
-
-    PVR->TriggerTimerUpdate();
-    PVR->TriggerRecordingUpdate();
 
   }
 
@@ -750,6 +803,8 @@ PVR_ERROR Vu::GetChannels(PVR_HANDLE handle, bool bRadio)
 
 Vu::~Vu() 
 {
+  StopThread();
+
   m_channels.clear();  
   m_timers.clear();
   m_recordings.clear();
@@ -1105,8 +1160,26 @@ PVR_ERROR Vu::DeleteTimer(const PVR_TIMER &timer)
 
 PVR_ERROR Vu::GetRecordings(PVR_HANDLE handle)
 {
+  m_iNumRecordings = 0;
+  m_recordings.clear();
+
+  for (unsigned int i=0; i<m_locations.size(); i++)
+  {
+    if (!GetRecordingFromLocation(handle, m_locations[i]))
+    {
+      XBMC->Log(LOG_ERROR, "%s Error fetching lists for folder: '%s'", __FUNCTION__, m_locations[i].c_str());
+      return PVR_ERROR_SERVER_ERROR;
+    }
+  }
+
+  return PVR_ERROR_NO_ERROR;
+}
+
+bool Vu::GetRecordingFromLocation(PVR_HANDLE handle, CStdString strRecordingFolder)
+{
   CStdString url;
-  url.Format("%s%s", m_strURL.c_str(), "web/movielist"); 
+
+  url.Format("%s%s?dirname=%s", m_strURL.c_str(), "web/movielist", URLEncodeInline(strRecordingFolder.c_str())); 
  
   CStdString strXML;
   strXML = GetHttpXML(url);
@@ -1116,16 +1189,15 @@ PVR_ERROR Vu::GetRecordings(PVR_HANDLE handle)
 
   if(xe.error != 0)  {
     XBMC->Log(LOG_ERROR, "%s Unable to parse XML. Error: '%s' ", __FUNCTION__, XMLNode::getError(xe.error));
-    return PVR_ERROR_SERVER_ERROR;
+    return false;
   }
 
   XMLNode xNode = xMainNode.getChildNode("e2movielist");
   int n = xNode.nChildNode("e2movie");
 
   XBMC->Log(LOG_INFO, "%s Number of elements: '%d'", __FUNCTION__, n);
-  
-  m_iNumRecordings = 0;
-  m_recordings.clear();
+ 
+  int iNumRecording = 0; 
 
   while(n>0)
   {
@@ -1181,14 +1253,15 @@ PVR_ERROR Vu::GetRecordings(PVR_HANDLE handle)
     PVR->TransferRecordingEntry(handle, &tag);
 
     m_iNumRecordings++; 
+    iNumRecording++;
     m_recordings.push_back(recording);
 
     XBMC->Log(LOG_INFO, "%s loaded Recording entry '%s', start '%d', length '%d'", __FUNCTION__, tag.strTitle, recording.startTime, recording.iDuration);
   }
 
-  XBMC->Log(LOG_INFO, "%s Loaded %u Recording Entries", __FUNCTION__, m_iNumRecordings);
+  XBMC->Log(LOG_INFO, "%s Loaded %u Recording Entries from folder '%s'", __FUNCTION__, iNumRecording, strRecordingFolder.c_str());
 
-  return PVR_ERROR_NO_ERROR;
+  return true;
 }
 
 PVR_ERROR Vu::DeleteRecording(const PVR_RECORDING &recinfo) 
