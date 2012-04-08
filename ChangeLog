@@ -1,4 +1,7 @@
-0.1.8 change: fetch the recording locations and use these location when querying the recordings
+0.1.9 change: add addon icon (copyied from the openelec guys, thanks!)
+      fix: win32 release target (thanks to 'trans' for patch)
+
+0.1.8 change: fetch the recording locations and use these locations when querying the recordings
       fix: Stop update thread when destroying the PVR addon - fixes shutdown issues
 
 0.1.7 fix: Copy & Paste error                        
