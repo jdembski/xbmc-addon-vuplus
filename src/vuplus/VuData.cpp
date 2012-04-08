@@ -449,7 +449,9 @@ bool Vu::Open()
   CLockObject lock(m_mutex);
   m_bIsConnected = false;
 
-  LoadLocations();
+  if (!g_bOnlyCurrentLocation)
+    LoadLocations();
+
   LoadChannelData();
   if (m_channels.size() == 0) {
     XBMC->Log(LOG_DEBUG, "%s No stored channels found, fetch from webapi", __FUNCTION__);
@@ -1172,6 +1174,9 @@ PVR_ERROR Vu::GetRecordings(PVR_HANDLE handle)
     }
   }
 
+  if (g_bOnlyCurrentLocation)
+    GetRecordingFromLocation(handle, "default");
+
   return PVR_ERROR_NO_ERROR;
 }
 
@@ -1179,7 +1184,10 @@ bool Vu::GetRecordingFromLocation(PVR_HANDLE handle, CStdString strRecordingFold
 {
   CStdString url;
 
-  url.Format("%s%s?dirname=%s", m_strURL.c_str(), "web/movielist", URLEncodeInline(strRecordingFolder.c_str())); 
+  if (!strRecordingFolder.compare("default"))
+    url.Format("%s%s", m_strURL.c_str(), "web/movielist"); 
+  else 
+    url.Format("%s%s?dirname=%s", m_strURL.c_str(), "web/movielist", URLEncodeInline(strRecordingFolder.c_str())); 
  
   CStdString strXML;
   strXML = GetHttpXML(url);

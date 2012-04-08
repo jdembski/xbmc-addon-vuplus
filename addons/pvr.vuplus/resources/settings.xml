@@ -13,5 +13,6 @@
     <setting id="updateint" type="number" label="30010" default="2" />
     <setting label="30015" type="bool" id="checkgroups" default="true"/>
     <setting label="30016" type="bool" id="checkchannels" default="true"/>
+    <setting label="30017" type="bool" id="onlycurrent" default="false"/>
     <setting label="30011" type="bool" id="timerlistcleanup" default="false"/>
 </settings>
