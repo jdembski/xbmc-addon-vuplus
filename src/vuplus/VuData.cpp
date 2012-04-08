@@ -20,7 +20,10 @@ std::string& Vu::Escape(std::string &s, std::string from, std::string to)
 bool Vu::LoadLocations() 
 {
   CStdString url;
-  url.Format("%s%s",  m_strURL.c_str(), "web/getlocations"); 
+  if (g_bOnlyCurrentLocation)
+    url.Format("%s%s",  m_strURL.c_str(), "web/getcurrlocation"); 
+  else 
+    url.Format("%s%s",  m_strURL.c_str(), "web/getlocations"); 
  
   CStdString strXML;
   strXML = GetHttpXML(url);
@@ -449,8 +452,7 @@ bool Vu::Open()
   CLockObject lock(m_mutex);
   m_bIsConnected = false;
 
-  if (!g_bOnlyCurrentLocation)
-    LoadLocations();
+  LoadLocations();
 
   LoadChannelData();
   if (m_channels.size() == 0) {
@@ -1173,9 +1175,6 @@ PVR_ERROR Vu::GetRecordings(PVR_HANDLE handle)
       return PVR_ERROR_SERVER_ERROR;
     }
   }
-
-  if (g_bOnlyCurrentLocation)
-    GetRecordingFromLocation(handle, "default");
 
   return PVR_ERROR_NO_ERROR;
 }
