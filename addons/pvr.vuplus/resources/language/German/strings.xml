@@ -9,12 +9,12 @@
     <string id="30008">Picon-Pfad</string>
     <string id="30009">Zeige abgeschlossene Timer</string>
     <string id="30010">Aktualisierungsintervall (in Minuten)</string>
-    <string id="30011">Automatisches aufrÃ¤en der Timerliste</string>
+    <string id="30011">Entferne abgeschlossene Timer</string>
     <string id="30012">Webinterface Port</string>
     <string id="30013">Umschalten auf SatBox (z.B. bei SingleTuner Receivern)</string>
-    <string id="30014">Ort fuer Kanaldaten</string>
-    <string id="30015">Ueberpruefe auf Bouquettaktualisierungen</string>
-    <string id="30016">Ueberpruefe auf Kanalaktualisierungen</string>
+    <string id="30014">Speicherort für Kanaldaten</string>
+    <string id="30015">Überprüfe auf Bouquettaktualisierungen</string>
+    <string id="30016">Überprüfe auf Kanalaktualisierungen</string>
     <string id="30017">Aktuellen Box-Aufnahmenpfad nutzen</string>
 
     <!-- notifications -->
