@@ -8,7 +8,7 @@
   </category>
 
   <!-- Channels -->
-  <categeory label="30019">
+  <category label="30019">
     <setting id="channeldatapath" type="folder" label="30014" default="" />
     <setting label="30015" type="bool" id="checkgroups" default="true"/>
     <setting label="30016" type="bool" id="checkchannels" default="true"/>
