@@ -16,6 +16,12 @@
     <string id="30015">Überprüfe auf Bouquettaktualisierungen</string>
     <string id="30016">Überprüfe auf Kanalaktualisierungen</string>
     <string id="30017">Aktuellen Box-Aufnahmenpfad nutzen</string>
+    <string id="30018">Allgemeines</string>
+    <string id="30019">Sender</string>
+    <string id="30020">Fortgeschritten</string>
+    <string id="30021">HTTP</string>
+    <string id="30022">Aufnahmen / Timer</string>
+
 
     <!-- notifications -->
     <string id="30500">Verbindung '%s' unterbrochen</string>

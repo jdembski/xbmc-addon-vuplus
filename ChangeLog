@@ -1,4 +1,5 @@
 0.1.11 fix: some unicode string errors in german language file
+       change: add categories to addon settings
 
 0.1.10 add: support for using only the recording path currently active on the DVB box 
 
