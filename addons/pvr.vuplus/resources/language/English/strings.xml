@@ -21,6 +21,7 @@
     <string id="30020">Advanced</string>
     <string id="30021">HTTP</string>
     <string id="30022">Recordings / Timer</string>
+    <string id="30022">Recording path on DVB box</string>
 
     <!-- notifications -->
     <string id="30500">Disconnected from '%s'</string>

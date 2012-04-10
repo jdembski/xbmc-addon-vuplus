@@ -11,7 +11,7 @@
     <string id="30010">Aktualisierungsintervall (in Minuten)</string>
     <string id="30011">Entferne abgeschlossene Timer</string>
     <string id="30012">Webinterface Port</string>
-    <string id="30013">Umschalten auf SatBox (z.B. bei SingleTuner Receivern)</string>
+    <string id="30013">Umschalten auf Receiver (z.B. bei SingleTuner Receivern)</string>
     <string id="30014">Speicherort für Kanaldaten</string>
     <string id="30015">Überprüfe auf Bouquettaktualisierungen</string>
     <string id="30016">Überprüfe auf Kanalaktualisierungen</string>
@@ -21,6 +21,7 @@
     <string id="30020">Fortgeschritten</string>
     <string id="30021">HTTP</string>
     <string id="30022">Aufnahmen / Timer</string>
+    <string id="30023">Aufnahmeverzeichnis auf dem Receiver</string>
 
 
     <!-- notifications -->

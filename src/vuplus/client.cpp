@@ -42,8 +42,9 @@ int         g_iPortStream             = DEFAULT_STREAM_PORT;
 int         g_iPortWeb                = DEFAULT_WEB_PORT;
 int         g_iUpdateInterval         = DEFAULT_UPDATE_INTERVAL;
 std::string g_strUsername             = "";
+std::string g_strRecordingPath        = "";
 std::string g_strPassword             = "";
-std::string g_szUserPath             = "";
+std::string g_szUserPath              = "";
 std::string g_strIconPath             = "";
 bool        g_bShowTimersCompleted    = false;
 bool        g_bAutomaticTimerlistCleanup = false;
@@ -78,6 +79,13 @@ void ADDON_ReadSettings(void)
     g_strUsername = buffer;
   else
     g_strUsername = "";
+  buffer[0] = 0; /* Set the end of string */
+  
+  /* read setting "recordingpath" from settings.xml */
+  if (XBMC->GetSetting("recordingpath", buffer))
+    g_strRecordingPath = buffer;
+  else
+    g_strRecordingPath = "";
   buffer[0] = 0; /* Set the end of string */
 
   /* read setting "pass" from settings.xml */
