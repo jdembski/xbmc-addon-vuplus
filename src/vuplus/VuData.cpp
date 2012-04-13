@@ -537,10 +537,6 @@ void  *Vu::Process()
   return NULL;
 }
 
-void Vu::Close()
-{
-  m_bIsConnected = false;
-}
 
 bool Vu::LoadChannels() 
 {
@@ -808,11 +804,12 @@ PVR_ERROR Vu::GetChannels(PVR_HANDLE handle, bool bRadio)
 Vu::~Vu() 
 {
   StopThread();
-
+  
   m_channels.clear();  
   m_timers.clear();
   m_recordings.clear();
   m_groups.clear();
+  m_bIsConnected = false;
 }
 
 PVR_ERROR Vu::GetEPGForChannel(PVR_HANDLE handle, const PVR_CHANNEL &channel, time_t iStart, time_t iEnd)
@@ -1084,7 +1081,7 @@ CStdString Vu::URLEncodeInline(const CStdString& strData)
   return buffer;
 }
 
-bool Vu::SendSimpleCommand(const CStdString& strCommandURL, CStdString& strResultText)
+bool Vu::SendSimpleCommand(const CStdString& strCommandURL, CStdString& strResultText, bool bIgnoreResult)
 {
   CStdString url; 
   url.Format("%s%s", m_strURL.c_str(), strCommandURL.c_str()); 
@@ -1092,33 +1089,37 @@ bool Vu::SendSimpleCommand(const CStdString& strCommandURL, CStdString& strResul
   CStdString strXML;
   strXML = GetHttpXML(url);
 
-  XMLResults xe;
-  XMLNode xMainNode = XMLNode::parseString(strXML.c_str(), NULL, &xe);
+  if (!bIgnoreResult)
+  {
+    XMLResults xe;
+    XMLNode xMainNode = XMLNode::parseString(strXML.c_str(), NULL, &xe);
 
-  if(xe.error != 0)  {
-    XBMC->Log(LOG_ERROR, "%s Unable to parse XML. Error: '%s' ", __FUNCTION__, XMLNode::getError(xe.error));
-    return false;
+    if(xe.error != 0)  {
+      XBMC->Log(LOG_ERROR, "%s Unable to parse XML. Error: '%s' ", __FUNCTION__, XMLNode::getError(xe.error));
+      return false;
+    }
+
+    XMLNode xNode = xMainNode.getChildNode("e2simplexmlresult");
+
+    bool bTmp;
+
+    if (!GetBoolean(xNode, "e2state", bTmp)) {
+      XBMC->Log(LOG_ERROR, "%s Could not parse e2state from result!", __FUNCTION__);
+      strResultText.Format("Could not parse e2state!");
+      return false;
+    }
+
+    if (!GetString(xNode, "e2statetext", strResultText)) {
+      XBMC->Log(LOG_ERROR, "%s Could not parse e2state from result!", __FUNCTION__);
+      return false;
+    }
+
+    if (!bTmp)
+      XBMC->Log(LOG_ERROR, "%s Error message from backend: '%s'", __FUNCTION__, strResultText.c_str());
+
+    return bTmp;
   }
-
-  XMLNode xNode = xMainNode.getChildNode("e2simplexmlresult");
-
-  bool bTmp;
-
-  if (!GetBoolean(xNode, "e2state", bTmp)) {
-    XBMC->Log(LOG_ERROR, "%s Could not parse e2state from result!", __FUNCTION__);
-    strResultText.Format("Could not parse e2state!");
-    return false;
-  }
-
-  if (!GetString(xNode, "e2statetext", strResultText)) {
-    XBMC->Log(LOG_ERROR, "%s Could not parse e2state from result!", __FUNCTION__);
-    return false;
-  }
-
-  if (!bTmp)
-    XBMC->Log(LOG_ERROR, "%s Error message from backend: '%s'", __FUNCTION__, strResultText.c_str());
-
-  return bTmp;
+  return true;
 }
 
 
@@ -1531,5 +1532,17 @@ bool Vu::SwitchChannel(const PVR_CHANNEL &channel)
     return false;
 
   return true;
+}
 
+void Vu::SendPowerstate()
+{
+  if (!g_bSetPowerstate)
+    return;
+  
+  CLockObject lock(m_mutex);
+  CStdString strTmp;
+  strTmp.Format("web/powerstate?newstate=1");
+
+  CStdString strResult;
+  SendSimpleCommand(strTmp, strResult, true); 
 }

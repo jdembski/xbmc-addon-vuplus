@@ -141,7 +141,7 @@ private:
   CStdString GetHttpXML(CStdString& url);
   int GetChannelNumber(CStdString strServiceReference);
   CStdString URLEncodeInline(const CStdString& strData);
-  bool SendSimpleCommand(const CStdString& strCommandURL, CStdString& strResult);
+  bool SendSimpleCommand(const CStdString& strCommandURL, CStdString& strResult, bool bIgnoreResult = false);
   static int VuWebResponseCallback(void *contents, int iLength, int iSize, void *memPtr); 
   CStdString GetGroupServiceReference(CStdString strGroupName);
   bool LoadChannels(CStdString strServerReference, CStdString strGroupName);
@@ -188,13 +188,9 @@ public:
   const char* GetLiveStreamURL(const PVR_CHANNEL &channelinfo);
   bool OpenLiveStream(const PVR_CHANNEL &channelinfo);
   void CloseLiveStream();
+  void SendPowerstate();
   bool SwitchChannel(const PVR_CHANNEL &channel);
-
-
   bool Open();
   void Action();
-  void Close();
-
-
 };
 

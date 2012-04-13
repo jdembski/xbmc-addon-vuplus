@@ -37,7 +37,6 @@ int          g_iClientId = -1;
  */
 std::string g_strHostname             = DEFAULT_HOST;
 int         g_iConnectTimeout         = DEFAULT_CONNECT_TIMEOUT;
-int         g_iResponseTimeout        = DEFAULT_RESPONSE_TIMEOUT;
 int         g_iPortStream             = DEFAULT_STREAM_PORT;
 int         g_iPortWeb                = DEFAULT_WEB_PORT;
 int         g_iUpdateInterval         = DEFAULT_UPDATE_INTERVAL;
@@ -52,6 +51,7 @@ bool        g_bZap                    = false;
 bool        g_bCheckForGroupUpdates   = true;
 bool        g_bCheckForChannelUpdates = true;
 bool        g_bOnlyCurrentLocation    = false;
+bool        g_bSetPowerstate          = false;
 std::string g_szClientPath            = "";
 std::string g_strChannelDataPath      = "/tmp/";
 
@@ -106,6 +106,10 @@ void ADDON_ReadSettings(void)
   if (!XBMC->GetSetting("onlycurrent", &g_bOnlyCurrentLocation))
     g_bOnlyCurrentLocation = false;
   
+  /* read setting "setpowerstate" from settings.xml */
+  if (!XBMC->GetSetting("setpowerstate", &g_bSetPowerstate))
+    g_bSetPowerstate = false;
+  
   /* read setting "showcompleted" from settings.xml */
   if (!XBMC->GetSetting("showcompleted", &g_bShowTimersCompleted))
     g_bShowTimersCompleted = false;
@@ -130,10 +134,6 @@ void ADDON_ReadSettings(void)
   if (!XBMC->GetSetting("updateint", &g_iUpdateInterval))
     g_iConnectTimeout = DEFAULT_UPDATE_INTERVAL;
 
-  /* read setting "read_timeout" from settings.xml */
-  if (!XBMC->GetSetting("response_timeout", &g_iResponseTimeout))
-    g_iResponseTimeout = DEFAULT_RESPONSE_TIMEOUT;
-  
   /* read setting "iconpath" from settings.xml */
   if (XBMC->GetSetting("iconpath", buffer))
     g_strIconPath = buffer;
@@ -217,6 +217,12 @@ void ADDON_Destroy()
     m_bCreated = false;
   }
 
+  if (VuData)
+  {
+    VuData->SendPowerstate();
+  }
+  
+
   if (PVR)
   {
     delete PVR;
@@ -297,16 +303,6 @@ ADDON_STATUS ADDON_SetSetting(const char *settingName, const void *settingValue)
     {
       XBMC->Log(LOG_INFO, "%s - Changed Setting 'webport' from %u to %u", __FUNCTION__, g_iPortWeb, iNewValue);
       g_iPortWeb = iNewValue;
-      return ADDON_STATUS_OK;
-    }
-  }
-  else if (str == "response_timeout")
-  {
-    int iNewValue = *(int*) settingValue + 1;
-    if (g_iResponseTimeout != iNewValue)
-    {
-      XBMC->Log(LOG_INFO, "%s - Changed Setting 'response_timeout' from %u to %u", __FUNCTION__, g_iResponseTimeout, iNewValue);
-      g_iResponseTimeout = iNewValue;
       return ADDON_STATUS_OK;
     }
   }

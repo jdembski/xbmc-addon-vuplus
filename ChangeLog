@@ -1,3 +1,6 @@
+0.1.13 add: option to set deepstandby powerstate on the DVB box on PVR-addon shutdown
+       fix: error in settings.xml, causing crashes on linux
+
 0.1.12 add: support to specify the folder for storing recordings
 
 0.1.11 fix: some unicode string errors in german language file

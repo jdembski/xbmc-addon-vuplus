@@ -22,6 +22,8 @@
     <string id="30021">HTTP</string>
     <string id="30022">Recordings / Timer</string>
     <string id="30022">Recording path on DVB box</string>
+    <string id="30023">Recording folder on the receiver</string>
+    <string id="30024">Send DeepStandby-Command</string>
 
     <!-- notifications -->
     <string id="30500">Disconnected from '%s'</string>
