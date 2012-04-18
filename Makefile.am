@@ -10,6 +10,9 @@ DIST_SUBDIRS = \
 EXTRA_DIST = \
 	include
 
+all:
+	cp -r ChangeLog addons/pvr.vuplus/changelog
+
 dist-zip: all
 	cp -r addons/pvr.vuplus .
 	$(STRIP) -s -x pvr.vuplus/XBMC_vuplus.pvr
@@ -23,7 +26,3 @@ dist-zip-daily: all
 	$(STRIP) -s -x pvr.vuplus/XBMC_vuplus.pvr
 	zip -9 -r ./pvr.vuplus-$(VERSION).$(DATE)-$(build_cpu).zip pvr.vuplus --exclude \*.am \*.in \*Makefile \*.gitignore
 	rm -Rf pvr.vuplus
-
-dist-git: all
-	GIT_REV=`git --no-pager log --abbrev=7 -n 1 --pretty=format:"%h %ci" HEAD | cut -f1 -d' '` ; \
-	make VERSION=$$GIT_REV dist

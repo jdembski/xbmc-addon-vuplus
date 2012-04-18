@@ -1,35 +1,52 @@
-0.1.13 add: option to set deepstandby powerstate on the DVB box on PVR-addon shutdown
-       fix: error in settings.xml, causing crashes on linux
+0.1.14
+- change: change .gitignores and copy current changelog into the addon folder. This will enable the user to view the changelog in the addon settings window
 
-0.1.12 add: support to specify the folder for storing recordings
+0.1.13 
+- add: option to set deepstandby powerstate on the DVB box on PVR-addon shutdown
+- fix: error in settings.xml, causing crashes on linux
 
-0.1.11 fix: some unicode string errors in german language file
-       change: add categories to addon settings
+0.1.12 
+- add: support to specify the folder for storing recordings
 
-0.1.10 add: support for using only the recording path currently active on the DVB box 
+0.1.11 
+- fix: some unicode string errors in german language file
+- change: add categories to addon settings
 
-0.1.9 change: add addon icon (copyied from the openelec guys, thanks!)
-      fix: win32 release target (thanks to 'trans' for patch)
+0.1.10 
+- add: support for using only the recording path currently active on the DVB box 
 
-0.1.8 change: fetch the recording locations and use these locations when querying the recordings
-      fix: Stop update thread when destroying the PVR addon - fixes shutdown issues
+0.1.9 
+- change: add addon icon (copyied from the openelec guys, thanks!)
+- fix: win32 release target (thanks to 'trans' for patch)
 
-0.1.7 fix: Copy & Paste error                        
+0.1.8 
+- change: fetch the recording locations and use these locations when querying the recordings
+- fix: Stop update thread when destroying the PVR addon - fixes shutdown issues
 
-0.1.6 fix: Change the logic to determine the picon file name from the service reference.
+0.1.7 
+- fix: Copy & Paste error                        
 
-0.1.5 fix: Fix access violation errors on windows (thanks to 'trans' for finding the correct compiler / linker settings)
-      fix: do not return out of scope local variable for the streaming URL
-      fix: remove the last '_' character from the filename (if applicable). Should finally fix the picon path errors.
+0.1.6 
+- fix: Change the logic to determine the picon file name from the service reference.
 
-0.1.4 fix: limit length of the service reference part of the Icon-Path to 30 characters. 
-      fix: Escape "&", "<" and ">" characters in XML channeldata file.
-      add: support to disable all bouquet or channel updates 
+0.1.5 
+- fix: Fix access violation errors on windows (thanks to 'trans' for finding the correct compiler / linker settings)
+- fix: do not return out of scope local variable for the streaming URL
+- fix: remove the last '_' character from the filename (if applicable). Should finally fix the picon path errors.
 
-0.1.3 fix: order of timerlist cleanup and timerlist updates 
+0.1.4 
+- fix: limit length of the service reference part of the Icon-Path to 30 characters. 
+- fix: Escape "&", "<" and ">" characters in XML channeldata file.
+- add: support to disable all bouquet or channel updates 
 
-0.1.2 add: support for storing channel data into a file
+0.1.3 
+- fix: order of timerlist cleanup and timerlist updates 
 
-0.1.1 fix: URLEncode the service reference when fetching EPG
+0.1.2 
+- add: support for storing channel data into a file
 
-0.1.0 Iniital Version
+0.1.1 
+- fix: URLEncode the service reference when fetching EPG
+
+0.1.0 
+- Iniital Version
