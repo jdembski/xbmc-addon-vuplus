@@ -41,7 +41,6 @@ extern int 			 g_iUpdateInterval;
 extern int                       g_iClientId;
 extern unsigned int              g_iPacketSequence;
 extern bool                      g_bShowTimerNotifications;
-extern bool 	                 g_bShowTimersCompleted;
 extern bool			 g_bZap;
 extern bool                      g_bAutomaticTimerlistCleanup;
 extern bool                      g_bCheckForGroupUpdates;

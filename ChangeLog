@@ -1,3 +1,13 @@
+0.2.0:
+- change: Complete rework of timer handling. Now it will only show notifications for changed items
+- fix: Update / Add / Delete Timers. Note that the timer names in the XBMC are sometimes not updated properly (in the dialog it is OK)
+- fix: Instant Recordings do now work again
+- fix: timer status is now shown correctly (completed, recording, disabled)
+- fix: enabling / disabling timers do now work
+- change: removed "show completed timers" option (they are now always be shown)
+- add: added buildzip.bat & xbmc-addon-vuplus.sln (thanks to 'trans')
+- fix: Channel numbering / incorrect picons due to the change introduced in 0.1.15
+
 0.1.15
 - fix: when using the channeldata-store option not all channel groups (bouquets) were loaded due to a nulled counter variable
 

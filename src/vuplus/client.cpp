@@ -45,7 +45,6 @@ std::string g_strRecordingPath        = "";
 std::string g_strPassword             = "";
 std::string g_szUserPath              = "";
 std::string g_strIconPath             = "";
-bool        g_bShowTimersCompleted    = false;
 bool        g_bAutomaticTimerlistCleanup = false;
 bool        g_bZap                    = false;
 bool        g_bCheckForGroupUpdates   = true;
@@ -109,10 +108,6 @@ void ADDON_ReadSettings(void)
   /* read setting "setpowerstate" from settings.xml */
   if (!XBMC->GetSetting("setpowerstate", &g_bSetPowerstate))
     g_bSetPowerstate = false;
-  
-  /* read setting "showcompleted" from settings.xml */
-  if (!XBMC->GetSetting("showcompleted", &g_bShowTimersCompleted))
-    g_bShowTimersCompleted = false;
   
   /* read setting "checkgroups" from settings.xml */
   if (!XBMC->GetSetting("checkgroups", &g_bCheckForGroupUpdates))
