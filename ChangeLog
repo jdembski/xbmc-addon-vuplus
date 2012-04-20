@@ -1,3 +1,6 @@
+0.1.15
+- fix: when using the channeldata-store option not all channel groups (bouquets) were loaded due to a nulled counter variable
+
 0.1.14
 - change: change .gitignores and copy current changelog into the addon folder. This will enable the user to view the changelog in the addon settings window
 

@@ -416,7 +416,6 @@ Vu::Vu()
     strURL.Format("%s:%s@", g_strUsername.c_str(), g_strPassword.c_str());
   strURL.Format("http://%s%s:%u/", strURL.c_str(), g_strHostname.c_str(), g_iPortWeb);
   m_strURL = strURL.c_str();
-  m_iNumChannels = 0;
   m_iNumTimers = 0; 
   m_iNumRecordings = 0;
   m_iNumChannelGroups = 0;
@@ -541,7 +540,6 @@ void  *Vu::Process()
 bool Vu::LoadChannels() 
 {
     m_channels.clear();
-    m_iNumChannels = 0;
     // Load Channels
     for (int i = 0;i<m_iNumChannelGroups;  i++) 
     {
@@ -656,8 +654,8 @@ bool Vu::LoadChannels(CStdString strServiceReference, CStdString strGroupName)
     VuChannel newChannel;
     newChannel.bRadio = bRadio;
     newChannel.strGroupName = strGroupName;
-    newChannel.iUniqueId = m_iNumChannels+1;
-    newChannel.iChannelNumber = m_iNumChannels;
+    newChannel.iUniqueId = m_channels.size();
+    newChannel.iChannelNumber = m_channels.size()-1;
     newChannel.strServiceReference = strTmp;
 
     if (!GetString(xTmp, "e2servicename", strTmp)) 
@@ -699,12 +697,9 @@ bool Vu::LoadChannels(CStdString strServiceReference, CStdString strGroupName)
 
     m_channels.push_back(newChannel);
     XBMC->Log(LOG_INFO, "%s Loaded channel: %s, Icon: %s", __FUNCTION__, newChannel.strChannelName.c_str(), newChannel.strIconPath.c_str());
-
-
-    m_iNumChannels++; 
   }
 
-  XBMC->Log(LOG_INFO, "%s Loaded %d Channels", __FUNCTION__, m_iNumChannels);
+  XBMC->Log(LOG_INFO, "%s Loaded %d Channels", __FUNCTION__, m_channels.size());
   return true;
 }
 
@@ -1465,7 +1460,7 @@ PVR_ERROR Vu::GetChannelGroupMembers(PVR_HANDLE handle, const PVR_CHANNEL_GROUP 
 {
   XBMC->Log(LOG_DEBUG, "%s - group '%s'", __FUNCTION__, group.strGroupName);
   CStdString strTmp = group.strGroupName;
-  for (int i = 0;i<m_iNumChannels;  i++) 
+  for (int i = 0;i<m_channels.size();  i++) 
   {
     VuChannel &myChannel = m_channels.at(i);
     if (!strTmp.compare(myChannel.strGroupName)) 
