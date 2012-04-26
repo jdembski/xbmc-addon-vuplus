@@ -47,8 +47,34 @@ IF EXIST addons\pvr.vuplus\addon.xml del addons\pvr.vuplus\addon.xml > NUL
 
 copy ChangeLog addons\pvr.vuplus\changelog.txt
 
-copy addons\pvr.vuplus\addon.xml.in addons\pvr.vuplus\addon.xml
 
+REM -------Version aus ChangeLog in addons/pvr.vuplus/addon.xml eintragen--------
+
+setlocal enabledelayedexpansion 
+
+for /F "delims=" %%i in (ChangeLog) do if not defined zeile set "zeile=%%i"
+set zeile=!zeile:~0,-1!
+set "Von=  version" 
+set "Nach=  version="X"" 
+set Nach=!Nach:X=%zeile%!
+
+if exist addon.xml del addon.xml
+
+for /f "usebackq delims=" %%i in ("addons\pvr.vuplus\addon.xml.in") do (
+set "Line=%%i"
+set Line=!Line:%Von%=%Nach%!
+set Line1=!Line!
+set line1=!line1:~0,9!
+set line1=!line1:~2,7!
+
+ IF !Line1!==version set Line=!Line:~0,-12!
+
+Echo !Line!>>addons\pvr.vuplus\addon.xml 
+)
+setlocal disabledelayedexpansion 
+
+REM ------------------------------------------------------------------------------
+ 
 
 set ZIP="%ProgramFiles%\7-Zip\7z.exe"
 IF NOT EXIST %ZIP% (
@@ -56,11 +82,12 @@ IF NOT EXIST %ZIP% (
      goto DIE
 )
 
+IF EXIST pvr.vuplus.zip del pvr.vuplus.zip > NUL
+ 
+ cd addons
+%ZIP% a pvr.vuplus.zip  pvr.vuplus -xr!*.in -xr!*.am -xr!*.exp -xr!*.ilk >NUL
+move pvr.vuplus.zip ..\ > NUL
 
-
-cd addons
-%ZIP% a pvr.vuplus.zip  pvr.vuplus -xr!*.in -xr!*.am -xr!*.exp -xr!*.ilk
-move pvr.vuplus.zip ..\
 cd ..
 goto END
 
@@ -76,6 +103,9 @@ goto END
 
 :END
 IF %promptlevel% NEQ noprompt (
+ECHO --------------------------------------------------------------- 
+ECHO The file "pvr.vuplus.zip" was created in the current directory.
+ECHO --------------------------------------------------------------- 
 ECHO Press any key to exit...
 pause > NUL
 )
