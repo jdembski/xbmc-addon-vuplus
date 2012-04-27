@@ -11,7 +11,7 @@ EXTRA_DIST = \
 	include
 
 all:
-	cp -r ChangeLog addons/pvr.vuplus/changelog
+	cp -r ChangeLog addons/pvr.vuplus/changelog.txt
 
 dist-zip: all
 	cp -r addons/pvr.vuplus .

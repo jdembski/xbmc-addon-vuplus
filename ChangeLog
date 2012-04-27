@@ -1,6 +1,7 @@
 0.2.2:
 - fix: escape xml entities in the stream-url before saving to channeldata.xml
 - fix: fetch the version string from configure.in not the ChangeLog (thanks to 'trans')
+- fix: rename changelog in addon-directory to changelog.txt
 
 0.2.1:
 - fix: encode the stream-url properly. Please remove your channeldata.xml file after updating
