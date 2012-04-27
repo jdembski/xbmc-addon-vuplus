@@ -42,39 +42,80 @@ ECHO Cleaning Solution...
 ECHO Compiling Addon for XBMC...
 %NET% %OPTS_EXE%
 
+
 IF EXIST addons\pvr.vuplus\changelog.txt del addons\pvr.vuplus\changelog.txt > NUL
 IF EXIST addons\pvr.vuplus\addon.xml del addons\pvr.vuplus\addon.xml > NUL
 
-copy ChangeLog addons\pvr.vuplus\changelog.txt
+
 
 
-REM -------Version aus ChangeLog in addons/pvr.vuplus/addon.xml eintragen--------
+REM -------Version aus configure.in in addons/pvr.vuplus/addon.xml eintragen--------
+
+
 
 setlocal enabledelayedexpansion 
 
-for /F "delims=" %%i in (ChangeLog) do if not defined zeile set "zeile=%%i"
-set zeile=!zeile:~0,-1!
+
+
+for /f "usebackq delims=" %%i in ("configure.in") do (
+
+	set "zeile=%%i"
+
+	set zeile=!zeile:~11,30!
+	set zeile1=!zeile:~0,5!
+	IF !zeile1!==MAJOR (
+		set maj=!zeile:~8,30!
+		set maj=!maj:~0,-1!
+		)
+	IF !zeile1!==MINOR (
+		set min=!zeile:~8,30!
+		set min=!min:~0,-1!
+		)
+	IF !zeile1!==MICRO ( 
+		set mic=!zeile:~8,30!
+		set mic=!mic:~0,-1!
+		echo !maj!.!min!.!mic!>>test.tmp
+		)
+	)
+
+for /F "delims=" %%i in (test.tmp) do if not defined zeile set "zeile=%%i"
+
+
 set "Von=  version" 
+
 set "Nach=  version="X"" 
+
 set Nach=!Nach:X=%zeile%!
 
-if exist addon.xml del addon.xml
 
-for /f "usebackq delims=" %%i in ("addons\pvr.vuplus\addon.xml.in") do (
-set "Line=%%i"
-set Line=!Line:%Von%=%Nach%!
-set Line1=!Line!
-set line1=!line1:~0,9!
-set line1=!line1:~2,7!
 
- IF !Line1!==version set Line=!Line:~0,-12!
+for /f "usebackq delims=" %%i in ("addons/pvr.vuplus/addon.xml.in") do (
 
-Echo !Line!>>addons\pvr.vuplus\addon.xml 
-)
+	set "Line=%%i"
+
+	set Line=!Line:%Von%=%Nach%!
+
+	set Line1=!Line!
+
+	set line1=!line1:~0,9!
+
+	set line1=!line1:~2,7!
+	IF !Line1!==version set Line=!Line:~0,-12!
+	Echo !Line!>>addons/pvr.vuplus/addon.xml 
+
+	)
+
+
 setlocal disabledelayedexpansion 
+
+
+
 
 REM ------------------------------------------------------------------------------
  
+
+copy ChangeLog addons\pvr.vuplus\changelog.txt > NUL
+IF EXIST test.tmp del test.tmp
 
 set ZIP="%ProgramFiles%\7-Zip\7z.exe"
 IF NOT EXIST %ZIP% (
@@ -83,10 +124,16 @@ IF NOT EXIST %ZIP% (
 )
 
 IF EXIST pvr.vuplus.zip del pvr.vuplus.zip > NUL
- 
- cd addons
+
+
+cd addons
+
 %ZIP% a pvr.vuplus.zip  pvr.vuplus -xr!*.in -xr!*.am -xr!*.exp -xr!*.ilk >NUL
+
 move pvr.vuplus.zip ..\ > NUL
+
+
+
 
 cd ..
 goto END
