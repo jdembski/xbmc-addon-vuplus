@@ -464,7 +464,13 @@ void Vu::StoreChannelData()
 
     stream << "\t\t\t<servicereference>" << strTmp;
     stream << "</servicereference>\n";
-    stream << "\t\t\t<streamurl>" << channel.strStreamURL;
+
+    strTmp =  channel.strStreamURL;
+    Escape(strTmp, "&", "&quot;");
+    Escape(strTmp, "<", "&lt;");
+    Escape(strTmp, ">", "&gt;");
+
+    stream << "\t\t\t<streamurl>" << strTmp;
     stream << "</streamurl>\n";
 
     strTmp = channel.strIconPath;
