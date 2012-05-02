@@ -1,3 +1,6 @@
+0.2.3
+- fix: put username & password into recording-url
+
 0.2.2:
 - fix: escape xml entities in the stream-url before saving to channeldata.xml
 - fix: fetch the version string from configure.in not the ChangeLog (thanks to 'trans')
