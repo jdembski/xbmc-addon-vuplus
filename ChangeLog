@@ -1,3 +1,6 @@
+0.2.4
+- fix: put username & password into the streaming url
+
 0.2.3
 - fix: put username & password into recording-url
 

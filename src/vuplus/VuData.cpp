@@ -778,7 +778,12 @@ bool Vu::LoadChannels(CStdString strServiceReference, CStdString strGroupName)
 
     newChannel.strIconPath = strIcon;
 
-    strTmp.Format("http://%s:%d/%s", g_strHostname, g_iPortStream, URLEncodeInline(newChannel.strServiceReference));
+    strTmp.Format("");
+
+    if ((g_strUsername.length() > 0) && (g_strPassword.length() > 0))
+      strTmp.Format("%s:%s@", g_strUsername.c_str(), g_strPassword.c_str());
+
+    strTmp.Format("http://%s%s:%d/%s", strTmp.c_str(), g_strHostname, g_iPortStream, URLEncodeInline(newChannel.strServiceReference));
     newChannel.strStreamURL = strTmp;
 
     m_channels.push_back(newChannel);
