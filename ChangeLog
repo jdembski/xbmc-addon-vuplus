@@ -1,3 +1,6 @@
+0.2.5:
+- fix: cleanup the service reference in the streaming url
+
 0.2.4
 - fix: put username & password into the streaming url
 

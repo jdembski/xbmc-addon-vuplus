@@ -764,16 +764,19 @@ bool Vu::LoadChannels(CStdString strServiceReference, CStdString strGroupName)
     }
     std::string::size_type index = it-strIcon.begin();
 
-    std::replace(strIcon.begin(), strIcon.end(), ':','_');
-
     strIcon = strIcon.substr(0,index);
 
     it = strIcon.end() - 1;
-    if (*it == '_')
+    if (*it == ':')
     {
       strIcon.erase(it);
     }
+    
+    CStdString strTmp2;
 
+    strTmp2.Format("%s", strIcon.c_str());
+
+    std::replace(strIcon.begin(), strIcon.end(), ':','_');
     strIcon = g_strIconPath.c_str() + strIcon + ".png";
 
     newChannel.strIconPath = strIcon;
@@ -783,7 +786,7 @@ bool Vu::LoadChannels(CStdString strServiceReference, CStdString strGroupName)
     if ((g_strUsername.length() > 0) && (g_strPassword.length() > 0))
       strTmp.Format("%s:%s@", g_strUsername.c_str(), g_strPassword.c_str());
 
-    strTmp.Format("http://%s%s:%d/%s", strTmp.c_str(), g_strHostname, g_iPortStream, URLEncodeInline(newChannel.strServiceReference));
+    strTmp.Format("http://%s%s:%d/%s", strTmp.c_str(), g_strHostname, g_iPortStream, strTmp2.c_str());
     newChannel.strStreamURL = strTmp;
 
     m_channels.push_back(newChannel);
