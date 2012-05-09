@@ -1348,7 +1348,7 @@ bool Vu::GetRecordingFromLocation(PVR_HANDLE handle, CStdString strRecordingFold
       recording.iDuration = 0;
 
     if (GetString(xTmp, "e2filename", strTmp)) {
-      strTmp.Format("%s/file?file=%s", m_strURL.c_str(), URLEncodeInline(strTmp.c_str()));
+      strTmp.Format("%sfile?file=%s", m_strURL.c_str(), URLEncodeInline(strTmp.c_str()));
       recording.strStreamURL = strTmp;
     }
     
