@@ -534,7 +534,13 @@ int Vu::VuWebResponseCallback(void *contents, int iLength, int iSize, void *memP
 bool Vu::Open()
 {
   CLockObject lock(m_mutex);
-  m_bIsConnected = false;
+
+  XBMC->Log(LOG_NOTICE, "%s - VU+ Addon Configuration options", __FUNCTION__);
+  XBMC->Log(LOG_NOTICE, "%s - Hostname: '%s'", __FUNCTION__, g_strHostname.c_str());
+  XBMC->Log(LOG_NOTICE, "%s - WebPort: '%d'", __FUNCTION__, g_iPortWeb);
+  XBMC->Log(LOG_NOTICE, "%s - StreamPort: '%d'", __FUNCTION__, g_iPortStream);
+  
+  m_bIsConnected = GetDeviceInfo();
 
   LoadLocations();
 
@@ -556,7 +562,6 @@ bool Vu::Open()
   XBMC->Log(LOG_INFO, "%s Starting separate client update thread...", __FUNCTION__);
   CreateThread(); 
   
-  m_bIsConnected = true;
   return IsRunning(); 
 }
 
@@ -1659,4 +1664,61 @@ void Vu::SendPowerstate()
 
   CStdString strResult;
   SendSimpleCommand(strTmp, strResult, true); 
+}
+
+bool Vu::GetDeviceInfo()
+{
+  CStdString url; 
+  url.Format("%s%s", m_strURL.c_str(), "web/deviceinfo"); 
+
+  CStdString strXML;
+  strXML = GetHttpXML(url);
+
+  XMLResults xe;
+  XMLNode xMainNode = XMLNode::parseString(strXML.c_str(), NULL, &xe);
+  
+  if(xe.error != 0)  {
+    XBMC->Log(LOG_ERROR, "%s Unable to parse XML. Error: '%s' ", __FUNCTION__, XMLNode::getError(xe.error));
+    return false;
+  }
+
+  XMLNode xNode = xMainNode.getChildNode("e2deviceinfo");
+
+  CStdString strTmp;;
+
+  XBMC->Log(LOG_NOTICE, "%s - DeiveInfo", __FUNCTION__);
+
+  // Get EnigmaVersion
+  if (!GetString(xNode, "e2enigmaversion", strTmp)) {
+    XBMC->Log(LOG_ERROR, "%s Could not parse e2enigmaversion from result!", __FUNCTION__);
+    return false;
+  }
+  m_strEnigmaVersion = strTmp.c_str();
+  XBMC->Log(LOG_NOTICE, "%s - E2EnigmaVersion: %s", __FUNCTION__, m_strEnigmaVersion.c_str());
+
+  // Get ImageVersion
+  if (!GetString(xNode, "e2imageversion", strTmp)) {
+    XBMC->Log(LOG_ERROR, "%s Could not parse e2imageversion from result!", __FUNCTION__);
+    return false;
+  }
+  m_strImageVersion = strTmp.c_str();
+  XBMC->Log(LOG_NOTICE, "%s - E2ImageVersion: %s", __FUNCTION__, m_strImageVersion.c_str());
+
+  // Get WebIfVersion
+  if (!GetString(xNode, "e2webifversion", strTmp)) {
+    XBMC->Log(LOG_ERROR, "%s Could not parse e2webifversion from result!", __FUNCTION__);
+    return false;
+  }
+  m_strWebIfVersion = strTmp.c_str();
+  XBMC->Log(LOG_NOTICE, "%s - E2WebIfVersion: %s", __FUNCTION__, m_strWebIfVersion.c_str());
+
+  // Get DeviceName
+  if (!GetString(xNode, "e2devicename", strTmp)) {
+    XBMC->Log(LOG_ERROR, "%s Could not parse e2devicename from result!", __FUNCTION__);
+    return false;
+  }
+  m_strServerName = strTmp.c_str();
+  XBMC->Log(LOG_NOTICE, "%s - E2DeviceName: %s", __FUNCTION__, m_strServerName.c_str());
+
+  return true;
 }

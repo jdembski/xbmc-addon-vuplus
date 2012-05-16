@@ -69,8 +69,6 @@ struct VuChannel
 
 };
 
-
-
 struct VuEPGEntry 
 {
   int iEventId;
@@ -149,6 +147,9 @@ class Vu  : public PLATFORM::CThread
 private:
 
   // members
+  std::string m_strEnigmaVersion;
+  std::string m_strImageVersion;
+  std::string m_strWebIfVersion;
   bool  m_bIsConnected;
   std::string m_strServerName;
   std::string m_strURL;
@@ -195,6 +196,7 @@ private:
   bool CheckForGroupUpdate();
   bool CheckForChannelUpdate();
   std::string& Escape(std::string &s, std::string from, std::string to);
+  bool GetDeviceInfo();
 
 
 protected:
