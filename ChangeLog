@@ -3,6 +3,7 @@
 - cosmetic: inprove log output 
 - change: get the proper device info from the reveiver box instead of just setting dummy values
 - change: change the buildzip.bat to include version string in the name of the zip-file
+- change: introduce a version string for the channeldata xml file so that we can invalidate old channeldata files if necessary
 
 0.2.5:
 - fix: cleanup the service reference in the streaming url

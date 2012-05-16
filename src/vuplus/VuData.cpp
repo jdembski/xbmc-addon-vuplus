@@ -296,6 +296,20 @@ void Vu::LoadChannelData()
     XBMC->Log(LOG_ERROR, "%s error parsing channeldata!", __FUNCTION__);
     return;
   }
+
+  int iVersion;
+  if (!GetInt(xMainNode, "version", iVersion))
+  {
+    XBMC->Log(LOG_NOTICE, "%s No channeldata version string found, abort loading data from HDD!", __FUNCTION__);
+    return;
+  } 
+
+  XBMC->Log(LOG_DEBUG, "%s Found channeldata version: '%d', current channeldata version: '%d'", __FUNCTION__, iVersion, CHANNELDATAVERSION);
+
+  if (iVersion != CHANNELDATAVERSION) {
+    XBMC->Log(LOG_NOTICE, "%s The channeldata versions do not match, we will abort loading the data from the HDD.", __FUNCTION__);
+    return;
+  }
   
   XMLNode xNode = xMainNode.getChildNode("grouplist");
   int n = xNode.nChildNode("group");
@@ -396,6 +410,8 @@ void Vu::StoreChannelData()
 
 
   stream << "<channeldata>\n";
+  stream << "\t<version>\n" << CHANNELDATAVERSION;
+  stream << "\t</version>\n";
   stream << "\t<grouplist>\n";
   for (unsigned int iGroupPtr = 0; iGroupPtr < m_groups.size(); iGroupPtr++)
   {
