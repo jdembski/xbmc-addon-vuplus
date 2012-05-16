@@ -46,7 +46,6 @@ ECHO Compiling Addon for XBMC...
 IF EXIST addons\pvr.vuplus\changelog.txt del addons\pvr.vuplus\changelog.txt > NUL
 IF EXIST addons\pvr.vuplus\addon.xml del addons\pvr.vuplus\addon.xml > NUL
 
-
 
 
 REM -------Version aus configure.in in addons/pvr.vuplus/addon.xml eintragen--------
@@ -128,9 +127,9 @@ IF EXIST pvr.vuplus.zip del pvr.vuplus.zip > NUL
 
 cd addons
 
-%ZIP% a pvr.vuplus.zip  pvr.vuplus -xr!*.in -xr!*.am -xr!*.exp -xr!*.ilk >NUL
+%ZIP% a pvr.vuplus.%maj%.%min%.%mic%.zip  pvr.vuplus -xr!*.in -xr!*.am -xr!*.exp -xr!*.ilk >NUL
 
-move pvr.vuplus.zip ..\ > NUL
+move pvr.vuplus.%maj%.%min%.%mic%.zip ..\ > NUL
 
 
 
@@ -151,7 +150,7 @@ goto END
 :END
 IF %promptlevel% NEQ noprompt (
 ECHO --------------------------------------------------------------- 
-ECHO The file "pvr.vuplus.zip" was created in the current directory.
+ECHO The file 'pvr.vuplus.%maj%.%min%.%mic%.zip' was created in the current directory.
 ECHO --------------------------------------------------------------- 
 ECHO Press any key to exit...
 pause > NUL
