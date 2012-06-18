@@ -419,7 +419,7 @@ void Vu::StoreChannelData()
     stream << "\t\t<group>\n";
 
     CStdString strTmp = group.strServiceReference;
-    Escape(strTmp, "&", "&quot;");
+    Escape(strTmp, "&", "&amp;");
     Escape(strTmp, "<", "&lt;");
     Escape(strTmp, ">", "&gt;");
 
