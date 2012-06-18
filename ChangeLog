@@ -1,3 +1,6 @@
+0.2.8:
+- add: option to only fetch one TV bouquet which can be specified via the addon settings
+
 0.2.7:
 - fix: fix incorrect escape character for & (use '&amp;' instead of '&quot;'). Thx to 'hani' for pointing this out.
 

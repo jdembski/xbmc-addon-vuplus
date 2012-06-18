@@ -10,7 +10,7 @@ struct VuWebResponse {
   int iSize;
 };
 
-#define CHANNELDATAVERSION  1
+#define CHANNELDATAVERSION  2
 
 typedef enum VU_UPDATE_STATE
 {
