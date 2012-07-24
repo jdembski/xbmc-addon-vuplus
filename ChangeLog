@@ -1,3 +1,6 @@
+0.2.9:
+- change: remove curl dependancy (should also fix compiling unter IOS)
+
 0.2.8:
 - add: option to only fetch one TV bouquet which can be specified via the addon settings
 

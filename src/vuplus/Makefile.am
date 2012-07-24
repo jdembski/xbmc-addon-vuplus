@@ -14,6 +14,7 @@ lib_LTLIBRARIES = libvuplus.la
 libvuplus_la_SOURCES = \
 	client.cpp \
 	xmlParser.cpp \
+        HTTPConnection.cpp \
 	VuData.cpp
 
 libvuplus_la_LDFLAGS = \
