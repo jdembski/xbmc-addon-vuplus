@@ -2,6 +2,7 @@
 
 #include <curl/curl.h>
 #include "client.h" 
+#include "HTTPConnection.h"
 #include <iostream> 
 #include <fstream> 
 
@@ -831,17 +832,17 @@ bool Vu::IsConnected()
 CStdString Vu::GetHttpXML(CStdString& url) 
 {
   CLockObject lock(m_mutex);
-  CURL* curl_handle;
+  //CURL* curl_handle;
 
   XBMC->Log(LOG_INFO, "%s Open webAPI with URL: '%s'", __FUNCTION__, url.c_str());
 
-  struct VuWebResponse response;
+  //struct VuWebResponse response;
 
-  response.response = (char*) malloc(1);
-  response.iSize = 0;
+  //response.response = (char*) malloc(1);
+  //response.iSize = 0;
 
   // retrieve the webpage and store it in memory
-  curl_global_init(CURL_GLOBAL_ALL);
+  /*curl_global_init(CURL_GLOBAL_ALL);
   curl_handle = curl_easy_init();
   curl_easy_setopt(curl_handle, CURLOPT_URL, url.c_str());
   curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, &VuWebResponseCallback);
@@ -854,14 +855,19 @@ CStdString Vu::GetHttpXML(CStdString& url)
     XBMC->Log(LOG_INFO, "%s Could not open webAPI", __FUNCTION__);
     return "";
   }
+*/
 
-  CStdString strTmp;
-  strTmp.Format("%s", response.response);
+  HTTPConnection* httpConnection = new HTTPConnection(g_strUsername, g_strPassword, g_strHostname, g_iPortWeb, url.c_str());
+
+  if (!httpConnection->Connect())
+    return "";
+
+  CStdString strTmp = httpConnection->getResponse();
 
   XBMC->Log(LOG_INFO, "%s Got result. Length: %u", __FUNCTION__, strTmp.length());
   
-  free(response.response);
-  curl_easy_cleanup(curl_handle);
+  //free(response.response);
+  //curl_easy_cleanup(curl_handle);
 
   return strTmp;
 }

@@ -33,7 +33,7 @@ class HTTPConnection
 {
 public:
   HTTPConnection();
-  HTTPConnection(CStdString strUsername, CStdString strPassword, CStdString strHostname, int iPort);
+  HTTPConnection(CStdString strUsername, CStdString strPassword, CStdString strHostname, int iPort, CStdString strURL);
   ~HTTPConnection();
 
   bool        Connect(void);
@@ -44,6 +44,7 @@ public:
   void        SetUsername(std::string strUsername);
   void        SetPassword(std::string strPassword);
   void        SetURL(std::string strURL);
+  CStdString  getResponse(); 
 
 private:
   bool SendGreeting(void);
@@ -55,10 +56,8 @@ private:
   bool                      m_bIsConnected;
   std::string               m_strUsername;
   std::string               m_strPassword;
-  std::string               m_strURL;
   std::string               m_strHostname;
+  std::string               m_strURL;
   int                       m_iPort;
   int                       m_iConnectTimeout;
 };
-
-

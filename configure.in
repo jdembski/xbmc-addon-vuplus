@@ -41,6 +41,8 @@ case $host in
     ;;
 esac
 
+CXXFLAGS="$CXXFLAGS -fpermissive"
+
 # Finally create all the generated files
 AC_OUTPUT([
 Makefile

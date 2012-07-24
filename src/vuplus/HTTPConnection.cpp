@@ -36,13 +36,14 @@ HTTPConnection::HTTPConnection()
   m_bIsConnected = false;
 }
 
-HTTPConnection::HTTPConnection(CStdString strUsername, CStdString strPassword, CStdString strHostname, int iPort) 
+HTTPConnection::HTTPConnection(CStdString strUsername, CStdString strPassword, CStdString strHostname, int iPort, CStdString strURL) 
 {
   HTTPConnection();
   m_strUsername = strUsername;
   m_strPassword = strPassword;
   m_strHostname = strHostname;
   m_iPort       = iPort;
+  m_strURL      = strURL;
 }
 
 HTTPConnection::~HTTPConnection() 
@@ -91,12 +92,35 @@ bool HTTPConnection::Connect()
     return false;
   }
 
-  if (!Auth())
+/*  if (!Auth())
   {
     XBMC->Log(LOG_ERROR, "%s - failed to authenticate", __FUNCTION__);
     Close();
     return false;
+  } */
+  return true;
+}
+
+bool HTTPConnection::SendGreeting()
+{
+  if (!m_socket->IsOpen())
+  {
+    XBMC->Log(LOG_DEBUG, "%s - not connected to backend!", __FUNCTION__);
+    return false;
   }
+  
+  CStdString strRequest;
+
+  strRequest.Format("GET %s HTTP/1.1\r\nHost: %s \r\n\r\n", m_strURL.c_str(), m_strHostname.c_str());
+
+  m_socket->Write(strRequest.c_str(), (ssize_t)strRequest.length());
+
+  /*if (iWriteResult == 0)
+  {
+    XBMC->Log(LOG_DEBUG, "%s - Error sending request!", __FUNCTION__);
+    return false;
+  }
+*/
   return true;
 }
 
@@ -134,3 +158,15 @@ bool HTTPConnection::IsConnected(void)
   return m_bIsConnected && m_socket && m_socket->IsOpen();
 }
 
+CStdString HTTPConnection::getResponse() {
+  CStdString strContent;
+
+  CStdString buffer;
+
+  while(m_socket->Read(buffer, 255, 1000))
+  {
+    strContent += buffer;
+  }
+
+  return strContent;
+}
